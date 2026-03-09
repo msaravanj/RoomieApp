@@ -73,7 +73,7 @@ npm start
 Frontend će se pokrenuti na:
 
 ```
-http://localhost:3000
+http://localhost:5173
 ```
 
 ## 🔐 Autentifikacija
