@@ -1,0 +1,17 @@
+.textBlock {
+  text-align: center;
+  margin: auto;
+  margin-top: 6rem;
+  max-width: 40rem;
+}
+
+.heading {
+  margin-top: 4rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.text {
+  text-align: justify;
+  font-weight: 400;
+}

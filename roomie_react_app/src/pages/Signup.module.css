@@ -1,0 +1,19 @@
+.signupBox {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 30rem;
+  margin: 9rem auto;
+  padding: 2rem;
+  border: 1px solid #453f3f;
+  border-radius: 8px;
+}
+
+input,
+option,
+select,
+textarea {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-color: #444444;
+}
