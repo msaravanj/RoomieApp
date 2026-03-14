@@ -54,10 +54,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthWatcher />
-      <div>
-        <Navbar />
-      </div>
-
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         {localStorage.getItem("token") ? null : (

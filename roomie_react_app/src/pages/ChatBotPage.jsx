@@ -1,5 +1,5 @@
-import { Box } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Input } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 // Stranica za chatbot koji ispituje korisnika o njegovom lifestyleu
 // zasad samo skeleton
@@ -7,6 +7,18 @@ import { useState } from "react";
 const ChatBotPage = () => {
   const [message, setMessage] = useState("");
   const [chatBotResponse, setChatBotResponse] = useState([]);
+  const [convMessages, setConvMessages] = useState([]);
+
+  const handleSendMessage = () => {
+    if (message.trim() === "") return;
+    setConvMessages((prev) => [...prev, message]);
+    respondToChatBot();
+    setMessage("");
+  };
+
+  const handleEnterPress = (e) => {
+    if (e.key === "Enter") handleSendMessage();
+  };
 
   const startChatBot = () => {
     try {
@@ -48,6 +60,7 @@ const ChatBotPage = () => {
 
       const data = response.json();
       setChatBotResponse(data);
+      setConvMessages((prev) => [...prev, data.question]);
       return data;
     } catch (error) {
       console.error("Error responding to chatbot: ", error);
@@ -56,7 +69,28 @@ const ChatBotPage = () => {
     }
   };
 
-  return <Box></Box>;
+  useEffect(() => {
+    startChatBot();
+  }, []);
+
+  return (
+    <Box position="relative" width="100%" height="100vh" padding="4">
+      <Box id="chat-window">
+        {convMessages.map((msg, index) => (
+          <Box key={index}>{msg}</Box>
+        ))}
+      </Box>
+      <Box position="absolute" bottom="5" justifySelf="center" width="50%">
+        <Input
+          borderRadius="100rem"
+          placeholder="Answer the question..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleEnterPress}
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default ChatBotPage;

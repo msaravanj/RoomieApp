@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -7,10 +7,9 @@ import {
   Button,
   Stack,
   Link,
-  useDisclosure,
   Container,
 } from "@chakra-ui/react";
-import { FiMenu, FiX } from "react-icons/fi";
+import { FiX, FiMenu } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
 import { clearAuthSession } from "@/util/auth";
 
@@ -22,17 +21,21 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
+  const onOpen = () => setIsOpen(true);
+  const onClose = () => setIsOpen(false);
   const navigate = useNavigate();
 
   return (
     <Box
+      id="navbar"
       bg="gray.800"
       color="white"
       boxShadow="md"
       position="sticky"
       top={0}
       zIndex={10}
+      width="100%"
     >
       <Container>
         <Flex h={16} alignItems="center" justifyContent="space-between">
@@ -49,15 +52,14 @@ const Navbar = () => {
           </Link>
 
           <IconButton
-            size="md"
-            icon={isOpen ? <FiX /> : <FiMenu />}
+            size="lg"
+            variant="outline"
             aria-label={isOpen ? "Close menu" : "Open menu"}
-            display={{ base: "flex", md: "none" }}
+            display={{ base: "inline-flex", md: "none" }}
             onClick={isOpen ? onClose : onOpen}
-            variant="ghost"
-            colorScheme="whiteAlpha"
-            focusRing="none"
-          />
+          >
+            {isOpen ? <FiX /> : <FiMenu />}
+          </IconButton>
 
           <HStack gap={8} spacing={8} display={{ base: "none", md: "flex" }}>
             {navLinks.map((link) => (
@@ -76,7 +78,6 @@ const Navbar = () => {
             ))}
             {localStorage.getItem("token") ? (
               <Button
-                colorScheme="teal"
                 size="md"
                 variant="solid"
                 focusRing="none"
@@ -90,7 +91,6 @@ const Navbar = () => {
               </Button>
             ) : (
               <Button
-                colorScheme="teal"
                 size="md"
                 variant="solid"
                 focusRing="none"
@@ -105,9 +105,10 @@ const Navbar = () => {
 
         {isOpen && (
           <Box pb={4} display={{ md: "none" }}>
-            <Stack as="nav" spacing={8}>
+            <Stack as="nav" spacing={8} alignItems="center" gap="8">
               {navLinks.map((link) => (
                 <Link
+                  fontSize="1.5rem"
                   as={NavLink}
                   key={link.href}
                   to={link.href}
@@ -120,16 +121,30 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <Button
-                colorScheme="teal"
-                size="md"
-                width="full"
-                focusRing="none"
-                as={NavLink}
-                to="/login"
-              >
-                Login
-              </Button>
+              {localStorage.getItem("token") ? (
+                <Button
+                  fontSize="1.5rem"
+                  variant="outline"
+                  focusRing="none"
+                  onClick={() => {
+                    clearAuthSession();
+                    navigate("/login");
+                    window.location.reload();
+                  }}
+                >
+                  Logout
+                </Button>
+              ) : (
+                <Button
+                  fontSize="1.5rem"
+                  variant="outline"
+                  focusRing="none"
+                  as={NavLink}
+                  to="/login"
+                >
+                  Login
+                </Button>
+              )}
             </Stack>
           </Box>
         )}
