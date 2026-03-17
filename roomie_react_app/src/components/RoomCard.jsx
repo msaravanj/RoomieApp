@@ -34,7 +34,6 @@ const RoomCard = (props) => {
         >
           View
         </Button>
-        <Button variant="ghost">Roommate info</Button>
       </Card.Footer>
     </Card.Root>
   );

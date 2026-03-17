@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -11,20 +11,34 @@ import {
 } from "@chakra-ui/react";
 import { FiX, FiMenu } from "react-icons/fi";
 import { NavLink, useNavigate } from "react-router-dom";
-import { clearAuthSession } from "@/util/auth";
+import { AUTH_CHANGE_EVENT, clearAuthSession, getAuthToken } from "@/util/auth";
 
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Rooms", href: "/rooms" },
   { label: "Chat", href: "/chat" },
-  { label: "Contact", href: "/contact" },
 ];
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [authToken, setAuthToken] = useState(() => getAuthToken());
   const onOpen = () => setIsOpen(true);
   const onClose = () => setIsOpen(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const syncAuthToken = () => {
+      setAuthToken(getAuthToken());
+    };
+
+    window.addEventListener(AUTH_CHANGE_EVENT, syncAuthToken);
+    window.addEventListener("storage", syncAuthToken);
+
+    return () => {
+      window.removeEventListener(AUTH_CHANGE_EVENT, syncAuthToken);
+      window.removeEventListener("storage", syncAuthToken);
+    };
+  }, []);
 
   return (
     <Box
@@ -76,7 +90,7 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            {localStorage.getItem("token") ? (
+            {authToken ? (
               <Button
                 size="md"
                 variant="solid"
@@ -84,7 +98,6 @@ const Navbar = () => {
                 onClick={() => {
                   clearAuthSession();
                   navigate("/login");
-                  window.location.reload();
                 }}
               >
                 Logout
@@ -121,7 +134,7 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              {localStorage.getItem("token") ? (
+              {authToken ? (
                 <Button
                   fontSize="1.5rem"
                   variant="outline"
@@ -129,7 +142,6 @@ const Navbar = () => {
                   onClick={() => {
                     clearAuthSession();
                     navigate("/login");
-                    window.location.reload();
                   }}
                 >
                   Logout

@@ -32,13 +32,27 @@ const Login = () => {
   };
 
   const loginUser = async () => {
-    const response = await fetch(urlLoginUser, optionsLoginUser);
-    if (response.status === 401) {
-      toaster.create({
-        description: "Invalid email or password.",
-        type: "error",
-      });
-    } else if (response.ok) {
+    try {
+      setButtonLoading(true);
+
+      const response = await fetch(urlLoginUser, optionsLoginUser);
+
+      if (response.status === 401) {
+        toaster.create({
+          description: "Invalid email or password.",
+          type: "error",
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        toaster.create({
+          description: "Login failed. Please try again.",
+          type: "error",
+        });
+        return;
+      }
+
       toaster.create({
         description: "Login successful!",
         type: "success",
@@ -54,6 +68,8 @@ const Login = () => {
       setTimeout(() => {
         navigate("/");
       }, 1000);
+    } finally {
+      setButtonLoading(false);
     }
   };
 
@@ -86,11 +102,7 @@ const Login = () => {
           width="full"
           _hover={{ backgroundColor: "teal.600" }}
           loading={buttonLoading}
-          onClick={() => {
-            setButtonLoading(true);
-            loginUser();
-            setButtonLoading(false);
-          }}
+          onClick={loginUser}
         >
           Log in
         </Button>

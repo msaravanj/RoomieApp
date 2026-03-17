@@ -8,6 +8,7 @@ import {
   Heading,
   Avatar,
   Button,
+  CloseButton,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -18,6 +19,7 @@ import {
   LuCalendar,
   LuCigarette,
   LuMessageCircleMore,
+  LuX,
 } from "react-icons/lu";
 import { MdOutlineBedroomParent, MdOutlinePets } from "react-icons/md";
 import { GiCardRandom } from "react-icons/gi";
@@ -49,10 +51,10 @@ const OverlayCard = ({ room, photos, open, onOpenChange }) => {
     }
   };
 
-  const findUser = async () => {
+  const findUser = async (userId) => {
     try {
       const response = await fetch(
-        "http://localhost:8080/api/users/" + room.userId,
+        "http://localhost:8080/api/users/" + userId,
         {
           method: "GET",
           headers: {
@@ -69,15 +71,30 @@ const OverlayCard = ({ room, photos, open, onOpenChange }) => {
   };
 
   useEffect(() => {
-    if (room.userId) {
-      findUser().then((user) => {
-        setUser(user);
-        // findLifestyleProfile(user.id).then((profileData) =>
-        //   setLifestyleProfile(profileData),
-        // );
+    if (!open || !room?.userId) return;
+
+    let isActive = true;
+
+    setUser(null);
+    setLifestyleProfile(null);
+
+    findUser(room.userId).then((userData) => {
+      if (!isActive || !userData) return;
+
+      setUser(userData);
+
+      if (!userData.lifestyleProfileId) return;
+
+      findLifestyleProfile(userData.lifestyleProfileId).then((profileData) => {
+        if (!isActive) return;
+        setLifestyleProfile(profileData);
       });
-    }
-  }, []);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [open, room?.userId]);
 
   return (
     <Dialog.Root
@@ -202,6 +219,9 @@ const OverlayCard = ({ room, photos, open, onOpenChange }) => {
                 )}
               </Flex>
             </Dialog.Body>
+            <Dialog.CloseTrigger asChild>
+              <CloseButton size="md" />
+            </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>

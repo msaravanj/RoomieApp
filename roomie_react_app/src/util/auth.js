@@ -1,6 +1,13 @@
 export const AUTH_TOKEN_KEY = "token";
 export const AUTH_USER_ID_KEY = "userId";
 export const AUTH_EXPIRES_AT_KEY = "authExpiresAt";
+export const AUTH_CHANGE_EVENT = "auth-change";
+
+const notifyAuthChange = () => {
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+};
+
+export const getAuthToken = () => localStorage.getItem(AUTH_TOKEN_KEY);
 
 export const setAuthSession = ({ token, userId, expiresInMs }) => {
   if (token) {
@@ -15,12 +22,16 @@ export const setAuthSession = ({ token, userId, expiresInMs }) => {
     const expiresAt = Date.now() + expiresInMs;
     localStorage.setItem(AUTH_EXPIRES_AT_KEY, String(expiresAt));
   }
+
+  notifyAuthChange();
 };
 
 export const clearAuthSession = () => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(AUTH_USER_ID_KEY);
   localStorage.removeItem(AUTH_EXPIRES_AT_KEY);
+
+  notifyAuthChange();
 };
 
 export const getAuthExpiresAt = () => {
