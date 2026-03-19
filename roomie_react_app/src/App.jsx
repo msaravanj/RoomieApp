@@ -21,6 +21,7 @@ import {
   clearAuthSession,
   getAuthExpiresAt,
 } from "@/util/auth";
+import MapPage from "./components/Map";
 
 const AuthWatcher = () => {
   const navigate = useNavigate();

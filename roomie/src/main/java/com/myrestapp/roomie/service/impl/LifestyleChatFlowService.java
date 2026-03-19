@@ -34,13 +34,13 @@ public class LifestyleChatFlowService {
 
         LifestyleQuestion question = session.currentQuestion();
 
-        // 1️⃣ Validacija odgovora
+        //  Validacija odgovora
         Object value = validator.validate(session.getProgress(), answer);
 
-        // 2️⃣ Spremanje u profile
+        //  Spremanje u profile
         applyValue(session.getProfile(), question, value);
 
-        // 3️⃣ Sljedeći korak
+        //  Sljedeći korak
         session.next();
     }
 

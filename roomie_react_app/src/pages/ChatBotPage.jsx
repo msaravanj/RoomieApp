@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import SplitText from "gsap/SplitText";
+import { useNavigate } from "react-router-dom";
 
 gsap.registerPlugin(SplitText);
 
 // Stranica za chatbot koji ispituje korisnika o njegovom lifestyleu
-// zasad samo skeleton
 
 const ChatBotPage = () => {
   const [message, setMessage] = useState("");
@@ -18,6 +18,9 @@ const ChatBotPage = () => {
   const scrollAreaRef = useRef(null);
   const lastBotMsgRef = useRef(null);
   const lastAnimatedIndexRef = useRef(-1);
+  const splitTextRef = useRef(null);
+
+  const navigate = useNavigate();
 
   // Pronađi index zadnje chatbot poruke
   const getLastBotMessageIndex = () => {
@@ -37,9 +40,19 @@ const ChatBotPage = () => {
       lastBotIndex !== -1 &&
       lastBotIndex !== lastAnimatedIndexRef.current
     ) {
+      if (splitTextRef.current) {
+        splitTextRef.current.revert();
+      }
+
       lastAnimatedIndexRef.current = lastBotIndex;
       const splitText = new SplitText(lastBotMsgRef.current, {
-        type: "chars",
+        type: "words,chars",
+      });
+      splitTextRef.current = splitText;
+
+      gsap.set(splitText.words, {
+        display: "inline-block",
+        whiteSpace: "nowrap",
       });
 
       gsap.fromTo(
@@ -53,6 +66,14 @@ const ChatBotPage = () => {
       );
     }
   }, [convMessages]);
+
+  useEffect(() => {
+    return () => {
+      if (splitTextRef.current) {
+        splitTextRef.current.revert();
+      }
+    };
+  }, []);
 
   const handleSendMessage = () => {
     if (message.trim() === "") return;
@@ -125,6 +146,12 @@ const ChatBotPage = () => {
           sender: "chatbot",
         },
       ]);
+
+      if (data.finished) {
+        setTimeout(() => {
+          navigate("/rooms");
+        }, 3000);
+      }
       return data;
     } catch (error) {
       console.error("Error responding to chatbot: ", error);
@@ -166,6 +193,9 @@ const ChatBotPage = () => {
                   <Box
                     key={`bot-${index}`}
                     marginTop="2rem"
+                    whiteSpace="normal"
+                    wordBreak="keep-all"
+                    overflowWrap="normal"
                     ref={
                       index === getLastBotMessageIndex() ? lastBotMsgRef : null
                     }
@@ -180,6 +210,9 @@ const ChatBotPage = () => {
                     borderRadius="1rem"
                     bg="gray.700"
                     textAlign="right"
+                    whiteSpace="normal"
+                    wordBreak="keep-all"
+                    overflowWrap="normal"
                   >
                     {msg.message}
                   </Box>
@@ -197,7 +230,7 @@ const ChatBotPage = () => {
       >
         <Input
           borderRadius="100rem"
-          placeholder="Answer the question..."
+          placeholder="Odgovori na pitanje..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleEnterPress}

@@ -13,7 +13,7 @@ const RoomCard = (props) => {
         <Card.Title>{props.title}</Card.Title>
         <HStack gap="1" align="center">
           <LuMapPin />
-          <Text as="span">
+          <Text as="span" onClick={props.openMapDialog} cursor="pointer">
             {props.address}, {props.city}
           </Text>
         </HStack>
@@ -29,7 +29,7 @@ const RoomCard = (props) => {
         <Button
           variant="solid"
           onClick={() => {
-            props.openDialog();
+            props.openRoomDialog();
           }}
         >
           View

@@ -2,13 +2,14 @@ import React, { Suspense, useEffect, useState } from "react";
 import { Box, Flex, createOverlay } from "@chakra-ui/react";
 import RoomCard from "../components/RoomCard";
 import OverlayCard from "../components/OverlayCard";
+import Map from "../components/Map";
 import styles from "./Rooms.module.css";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const [photos, setPhotos] = useState([]);
 
-  const dialog = createOverlay((overlay) => {
+  const roomDialog = createOverlay((overlay) => {
     return (
       <OverlayCard
         room={overlay}
@@ -19,8 +20,23 @@ const Rooms = () => {
     );
   });
 
-  const openDialog = (room) => {
-    dialog.open("a", room);
+  const mapDialog = createOverlay((overlay) => {
+    return (
+      <Map
+        room={overlay}
+        onOpenChange={overlay.onOpenChange}
+        open={overlay.open}
+        rooms={rooms}
+      />
+    );
+  });
+
+  const openRoomDialog = (room) => {
+    roomDialog.open("room", room);
+  };
+
+  const openMapDialog = (room) => {
+    mapDialog.open("map", room);
   };
 
   const fetchPhotos = async () => {
@@ -80,12 +96,15 @@ const Rooms = () => {
               price={room.pricePerMonth}
               capacity={room.capacity}
               photos={photos.filter((photo) => photo.housingId === room.id)}
-              openDialog={() => openDialog(room)}
+              openRoomDialog={() => openRoomDialog(room)}
+              openMapDialog={() => openMapDialog(room)}
+              rooms={rooms}
             />
           </Suspense>
         ))}
       </Flex>
-      <dialog.Viewport />
+      <roomDialog.Viewport />
+      <mapDialog.Viewport />
     </Box>
   );
 };
