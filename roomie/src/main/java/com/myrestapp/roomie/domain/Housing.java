@@ -30,10 +30,10 @@ public class Housing {
     private String address;
 
     @Column(name = "latitude")
-    private Long latitude;
+    private Double latitude;
 
     @Column(name = "longitude")
-    private Long longitude;
+    private Double longitude;
 
     @Column(name = "city")
     private String city;

@@ -1,10 +1,17 @@
 import { useMemo, useEffect, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { FcHome } from "react-icons/fc";
 import { Box, Dialog, Portal } from "@chakra-ui/react";
+import { calculateDistanceKm } from "../util/locationService";
 
 const RecenterMap = ({ position }) => {
   const map = useMap();
@@ -18,87 +25,109 @@ const RecenterMap = ({ position }) => {
   return null;
 };
 
+const MapClickHandler = ({ onMapClick }) => {
+  useMapEvents({
+    click: (event) => {
+      onMapClick?.([event.latlng.lat, event.latlng.lng]);
+    },
+  });
+
+  return null;
+};
+
 const Map = (props) => {
   const [position, setPosition] = useState([0, 0]);
-  const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY?.trim();
-  const locationIcon = useMemo(
-    () =>
-      L.divIcon({
-        className: "",
-        html: renderToStaticMarkup(
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "9999px",
-              background: "#0c0335",
-              border: "2px solid #3182CE",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 6px 16px rgba(0, 0, 0, 0.45)",
-            }}
-          >
-            <FcHome size={22} aria-hidden="true" />
-          </div>,
-        ),
-        iconSize: [40, 40],
-        iconAnchor: [20, 40],
-      }),
+  const handleMarkerClick = (room) => {
+    props.onOpenChange?.({ open: false });
+    setTimeout(() => {
+      props.onRoomMarkerClick?.(room);
+    }, 0);
+  };
+
+  const createLocationIcon = (size, border, iconSize) =>
+    L.divIcon({
+      className: "",
+      html: renderToStaticMarkup(
+        <div
+          style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            borderRadius: "9999px",
+            background: "#0c0335",
+            border,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 6px 16px rgba(0, 0, 0, 0.45)",
+          }}
+        >
+          <FcHome size={iconSize} aria-hidden="true" />
+        </div>,
+      ),
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size],
+    });
+
+  const mainLocationIcon = useMemo(
+    () => createLocationIcon(50, "3px solid #63B3ED", 28),
     [],
   );
 
-  const getCoords = async (address) => {
-    if (!geoapifyApiKey) {
-      console.warn("Missing VITE_GEOAPIFY_API_KEY in project root .env");
-      return null;
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${geoapifyApiKey}`,
-        { method: "GET" },
-      );
-
-      if (!response.ok) {
-        console.warn(
-          "Geoapify request failed:",
-          response.status,
-          response.statusText,
-        );
-        return null;
-      }
-
-      const result = await response.json();
-      const coords = result?.features?.[0]?.geometry?.coordinates;
-
-      if (!coords || coords.length < 2) {
-        console.warn("No coordinates found for address:", address);
-        return null;
-      }
-      console.log("Fetched coordinates:", coords);
-      return [coords[1], coords[0]];
-    } catch (error) {
-      console.log("error", error);
-      return null;
-    }
-  };
+  const nearbyLocationIcon = useMemo(
+    () => createLocationIcon(34, "2px solid #3182CE", 18),
+    [],
+  );
 
   useEffect(() => {
-    const address = props.room?.address;
-    const city = props.room?.city;
+    if (props.selectLocationMode) {
+      const selectedLatitude = Number(props.selectedLocation?.[0]);
+      const selectedLongitude = Number(props.selectedLocation?.[1]);
 
-    if (!address || !city) {
-      return;
+      if (
+        Number.isFinite(selectedLatitude) &&
+        Number.isFinite(selectedLongitude)
+      ) {
+        setPosition([selectedLatitude, selectedLongitude]);
+        return;
+      }
     }
 
-    getCoords(`${address} ${city}`).then((coords) => {
-      if (coords) {
-        setPosition(coords);
+    const latitude = Number(props.room?.latitude);
+    const longitude = Number(props.room?.longitude);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return;
+    }
+    setPosition([latitude, longitude]);
+  }, [props.room, props.selectLocationMode, props.selectedLocation]);
+
+  const nearbyRooms = useMemo(() => {
+    const [baseLat, baseLng] = position;
+    const hasValidBasePosition =
+      Number.isFinite(baseLat) &&
+      Number.isFinite(baseLng) &&
+      (baseLat !== 0 || baseLng !== 0);
+
+    if (!hasValidBasePosition || !Array.isArray(props.rooms)) {
+      return [];
+    }
+
+    return props.rooms.filter((room) => {
+      const latitude = Number(room?.latitude);
+      const longitude = Number(room?.longitude);
+
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        return false;
       }
-      console.log("Updated position:", coords);
+
+      const sameAsMainPosition = latitude === baseLat && longitude === baseLng;
+      if (sameAsMainPosition) {
+        return false;
+      }
+
+      const distanceKm = calculateDistanceKm(position, [latitude, longitude]);
+      return distanceKm < 30;
     });
-  }, [props.room?.address, props.room?.city, geoapifyApiKey]);
+  }, [position, props.rooms]);
 
   return (
     <Dialog.Root
@@ -135,11 +164,50 @@ const Map = (props) => {
                   style={{ height: "100%", width: "100%" }}
                 >
                   <RecenterMap position={position} />
+                  {props.selectLocationMode && (
+                    <MapClickHandler
+                      onMapClick={(coords) => {
+                        setPosition(coords);
+                        props.onLocationSelect?.(coords);
+                        props.onOpenChange?.({ open: false });
+                      }}
+                    />
+                  )}
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                   />
-                  <Marker position={position} icon={locationIcon}></Marker>
+                  {props.selectLocationMode ? (
+                    <Marker
+                      position={position}
+                      icon={mainLocationIcon}
+                    ></Marker>
+                  ) : (
+                    <>
+                      {nearbyRooms.map((room) => (
+                        <Marker
+                          key={room.id}
+                          position={[
+                            Number(room.latitude),
+                            Number(room.longitude),
+                          ]}
+                          icon={nearbyLocationIcon}
+                          eventHandlers={{
+                            click: () => handleMarkerClick(room),
+                          }}
+                        ></Marker>
+                      ))}
+                      {props.room?.latitude && props.room?.longitude && (
+                        <Marker
+                          position={position}
+                          icon={mainLocationIcon}
+                          eventHandlers={{
+                            click: () => handleMarkerClick(props.room),
+                          }}
+                        ></Marker>
+                      )}
+                    </>
+                  )}
                 </MapContainer>
               </Box>
             </Dialog.Body>

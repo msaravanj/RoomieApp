@@ -18,6 +18,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./FormStyles.module.css";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { useState } from "react";
+import { getCoords } from "@/util/locationService";
 
 const NewPlace = () => {
   const [name, setName] = useState("");
@@ -53,30 +54,6 @@ const NewPlace = () => {
   };
 
   const urlCreatePlace = "http://localhost:8080/api/housings";
-  const optionsCreatePlace = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({
-      name: name,
-      description: description,
-      address: address,
-      city: city,
-      pricePerMonth: pricePerMonth,
-      latitude: latitude,
-      longitude: longitude,
-      numberOfRooms: numberOfRooms,
-      capacity: capacity,
-      availableFrom: availableFrom,
-      availableTo: availableTo,
-      userId: localStorage.getItem("userId"),
-      sizeM2: sizeM2,
-      isPetFriendly: isPetFriendly,
-      photos: uploadedPhotoUrls,
-    }),
-  };
 
   const urlSavePhoto = "http://localhost:8080/api/photos";
   const optionsSavePhoto = (url, housingId) => {
@@ -153,9 +130,32 @@ const NewPlace = () => {
     }
   };
 
-  const addPlace = async () => {
+  const addPlace = async (placeLatitude, placeLongitude) => {
     setButtonLoading(true);
-    const response = await fetch(urlCreatePlace, optionsCreatePlace);
+    const response = await fetch(urlCreatePlace, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        name: name,
+        description: description,
+        address: address,
+        city: city,
+        pricePerMonth: pricePerMonth,
+        latitude: placeLatitude,
+        longitude: placeLongitude,
+        numberOfRooms: numberOfRooms,
+        capacity: capacity,
+        availableFrom: availableFrom,
+        availableTo: availableTo,
+        userId: localStorage.getItem("userId"),
+        sizeM2: sizeM2,
+        isPetFriendly: isPetFriendly,
+        photos: uploadedPhotoUrls,
+      }),
+    });
     if (response.status === 401) {
       setButtonLoading(false);
       toaster.create({
@@ -341,12 +341,29 @@ const NewPlace = () => {
           _hover={{ backgroundColor: "teal.600" }}
           loading={buttonLoading}
           onClick={async () => {
-            const data = await addPlace();
+            let placeLatitude = latitude;
+            let placeLongitude = longitude;
+
+            const coords = await getCoords(`${address} ${city}`);
+            if (coords) {
+              placeLatitude = coords[0];
+              placeLongitude = coords[1];
+              setLatitude(placeLatitude);
+              setLongitude(placeLongitude);
+            }
+
+            const data = await addPlace(placeLatitude, placeLongitude);
+            if (!data?.id) {
+              return;
+            }
+
             console.log("New place - ID:", data.id);
             const urls = [];
             for (const photo of photos) {
               const url = await uploadPhoto(photo);
-              urls.push(url);
+              if (url) {
+                urls.push(url);
+              }
             }
             for (const url of urls) {
               await savePhotoRecord(url, data.id);

@@ -19,7 +19,6 @@ import {
   LuCalendar,
   LuCigarette,
   LuMessageCircleMore,
-  LuX,
 } from "react-icons/lu";
 import { MdOutlineBedroomParent, MdOutlinePets } from "react-icons/md";
 import { GiCardRandom } from "react-icons/gi";
@@ -27,7 +26,7 @@ import { IoMaleFemale } from "react-icons/io5";
 import CarouselComp from "./CarouselComp";
 import { Link } from "react-router-dom";
 
-const OverlayCard = ({ room, photos, open, onOpenChange }) => {
+const OverlayCard = ({ room, photos, open, onOpenChange, openMapDialog }) => {
   const [user, setUser] = useState(null);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
 
@@ -106,114 +105,156 @@ const OverlayCard = ({ room, photos, open, onOpenChange }) => {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content>
-            <Dialog.Body>
-              <Dialog.Title fontSize="3xl" fontWeight="bold" marginTop="1rem">
+          <Dialog.Content
+            width="min(94vw, 960px)"
+            borderRadius="2xl"
+            overflow="hidden"
+          >
+            <Dialog.Body p={{ base: 4, md: 6 }} maxH="85vh" overflowY="auto">
+              <Dialog.Title
+                fontSize={{ base: "2xl", md: "3xl" }}
+                fontWeight="bold"
+              >
                 {room?.name}
               </Dialog.Title>
-              <Flex direction="column" gap="4" marginTop="3rem" fontSize="md">
-                {room?.description && <Text>{room.description}</Text>}
-                {room?.address && room?.city && (
-                  <HStack gap="2" align="center">
-                    <LuMapPin />
-                    <Text>
-                      {room?.address}, {room?.city}
-                    </Text>
-                  </HStack>
-                )}
-                {room?.capacity && (
-                  <HStack gap="2" align="center">
-                    <LuUsers />
-                    <Text>{room.capacity} roommates capacity</Text>
-                  </HStack>
-                )}
-                {room?.pricePerMonth && (
-                  <HStack gap="2" align="center">
-                    <LuReceiptEuro />
-                    <Text>{room.pricePerMonth}€ each</Text>
-                  </HStack>
-                )}
-                {room?.numberOfRooms && (
-                  <HStack gap="2" align="center">
-                    <MdOutlineBedroomParent />
-                    <Text>{room.numberOfRooms} bedroom(s)</Text>
-                  </HStack>
-                )}
-                {room?.sizeM2 && (
-                  <HStack gap="2" align="center">
-                    <LuHouse />
-                    <Text>{room.sizeM2} m² apartment size</Text>
-                  </HStack>
-                )}
-                {room?.isPetFriendly && (
-                  <HStack gap="2" align="center">
-                    <MdOutlinePets />
-                    <Text>Pet friendly</Text>
-                  </HStack>
-                )}
-                {room?.availableFrom && (
-                  <HStack gap="2" align="center">
-                    <LuCalendar />
-                    <Text>
-                      Available from:{" "}
-                      {new Date(room.availableFrom).toLocaleDateString()}
-                      {room?.availableTo &&
-                        ` - ${new Date(room.availableTo).toLocaleDateString()}`}
-                    </Text>
-                  </HStack>
-                )}
-                <Heading size="xl" marginTop="2rem">
-                  Roommate information
-                </Heading>
-                {user && (
-                  <Flex direction="column" justifyContent="center" gap="4">
-                    <HStack gap="4" align="center" marginBottom="4">
-                      <Avatar.Root size="2xl" key="user">
-                        <Avatar.Fallback
-                          name={`${user.name} ${user.lastName}`}
-                        />
-                        <Avatar.Image src={user.profilePictureUrl} />
-                      </Avatar.Root>
-                      <Text fontSize="lg" fontWeight="medium">
-                        {user.name} {user.lastName},{"  "}
-                        {new Date().getFullYear() - user.yob}
-                      </Text>
-                    </HStack>
-                    <HStack gap="2" align="center">
-                      <IoMaleFemale />
-                      <Text>{user.gender}</Text>
-                    </HStack>
-                    {lifestyleProfile && (
-                      <Flex direction="column" justifyContent="center" gap="4">
-                        <HStack gap="2" align="center">
-                          <LuCigarette />
-                          <Text>
-                            {lifestyleProfile.isSmoker
-                              ? "Smoker"
-                              : "Non-smoker"}
-                          </Text>
-                        </HStack>
-                        <HStack gap="2" align="center">
-                          <GiCardRandom />
-                          <Text>{lifestyleProfile.hobbies}</Text>
-                        </HStack>
-                      </Flex>
-                    )}
-                    <Button
-                      variant="outline"
-                      marginTop="6"
-                      colorPalette="green"
-                      maxW="10rem"
-                      as={Link}
-                      to={`/chat?id=${user.id}`}
-                    >
-                      <LuMessageCircleMore /> Send message
-                    </Button>
-                  </Flex>
+              <Flex direction="column" gap="5" marginTop="6" fontSize="md">
+                {room?.description && (
+                  <Text color="fg.muted" lineHeight="tall">
+                    {room.description}
+                  </Text>
                 )}
 
+                <Box
+                  borderWidth="1px"
+                  borderColor="border.muted"
+                  borderRadius="xl"
+                  p={{ base: 4, md: 5 }}
+                >
+                  <Heading size="md" mb="4">
+                    About this place
+                  </Heading>
+                  <Flex direction="column" gap="3">
+                    {room?.address && room?.city && (
+                      <HStack gap="2" align="center">
+                        <LuMapPin />
+                        <Text
+                          as="span"
+                          onClick={openMapDialog}
+                          cursor="pointer"
+                          textDecoration="underline"
+                          textUnderlineOffset="3px"
+                        >
+                          {room?.address}, {room?.city}
+                        </Text>
+                      </HStack>
+                    )}
+                    {room?.capacity && (
+                      <HStack gap="2" align="center">
+                        <LuUsers />
+                        <Text>{room.capacity} roommates capacity</Text>
+                      </HStack>
+                    )}
+                    {room?.pricePerMonth && (
+                      <HStack gap="2" align="center">
+                        <LuReceiptEuro />
+                        <Text>{room.pricePerMonth}€ each</Text>
+                      </HStack>
+                    )}
+                    {room?.numberOfRooms && (
+                      <HStack gap="2" align="center">
+                        <MdOutlineBedroomParent />
+                        <Text>{room.numberOfRooms} bedroom(s)</Text>
+                      </HStack>
+                    )}
+                    {room?.sizeM2 && (
+                      <HStack gap="2" align="center">
+                        <LuHouse />
+                        <Text>{room.sizeM2} m² apartment size</Text>
+                      </HStack>
+                    )}
+                    {room?.isPetFriendly && (
+                      <HStack gap="2" align="center">
+                        <MdOutlinePets />
+                        <Text>Pet friendly</Text>
+                      </HStack>
+                    )}
+                    {room?.availableFrom && (
+                      <HStack gap="2" align="center">
+                        <LuCalendar />
+                        <Text>
+                          Available from:{" "}
+                          {new Date(room.availableFrom).toLocaleDateString()}
+                          {room?.availableTo &&
+                            ` - ${new Date(room.availableTo).toLocaleDateString()}`}
+                        </Text>
+                      </HStack>
+                    )}
+                  </Flex>
+                </Box>
+
+                <Box
+                  borderWidth="1px"
+                  borderColor="border.muted"
+                  borderRadius="xl"
+                  p={{ base: 4, md: 5 }}
+                >
+                  <Heading size="md" mb="4">
+                    Roommate information
+                  </Heading>
+                  {user && (
+                    <Flex direction="column" justifyContent="center" gap="4">
+                      <HStack gap="4" align="center" marginBottom="2">
+                        <Avatar.Root size="2xl" key="user">
+                          <Avatar.Fallback
+                            name={`${user.name} ${user.lastName}`}
+                          />
+                          <Avatar.Image src={user.profilePictureUrl} />
+                        </Avatar.Root>
+                        <Text fontSize="lg" fontWeight="medium">
+                          {user.name} {user.lastName},{"  "}
+                          {new Date().getFullYear() - user.yob}
+                        </Text>
+                      </HStack>
+                      <HStack gap="2" align="center">
+                        <IoMaleFemale />
+                        <Text>{user.gender}</Text>
+                      </HStack>
+                      {lifestyleProfile && (
+                        <Flex
+                          direction="column"
+                          justifyContent="center"
+                          gap="4"
+                        >
+                          <HStack gap="2" align="center">
+                            <LuCigarette />
+                            <Text>
+                              {lifestyleProfile.isSmoker
+                                ? "Smoker"
+                                : "Non-smoker"}
+                            </Text>
+                          </HStack>
+                          <HStack gap="2" align="center">
+                            <GiCardRandom />
+                            <Text>{lifestyleProfile.hobbies}</Text>
+                          </HStack>
+                        </Flex>
+                      )}
+                      <Button
+                        variant="outline"
+                        marginTop="2"
+                        colorPalette="green"
+                        maxW="10rem"
+                        as={Link}
+                        to={`/chat?id=${user.id}`}
+                      >
+                        <LuMessageCircleMore /> Send message
+                      </Button>
+                    </Flex>
+                  )}
+                </Box>
+
                 {photos?.length && (
-                  <Box margin="2.5rem 0">
+                  <Box marginTop="2" width="100%">
                     <CarouselComp photos={photos} />
                   </Box>
                 )}

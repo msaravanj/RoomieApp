@@ -6,11 +6,11 @@ const CarouselComp = (props) => {
   const slideCount = props.photos.length;
 
   return (
-    <Carousel.Root slideCount={slideCount} maxW="xl" mx="auto">
-      <Carousel.ItemGroup>
-        {props.photos.map((photo) => (
+    <Carousel.Root slideCount={slideCount} w="full" maxW="full">
+      <Carousel.ItemGroup borderRadius="xl" overflow="hidden">
+        {props.photos.map((photo, index) => (
           <Suspense key={photo.id} fallback={<div>Loading...</div>}>
-            <Carousel.Item key={photo.id} index={photo.id}>
+            <Carousel.Item key={photo.id} index={index}>
               <Image
                 aspectRatio="16/9"
                 src={photo.url}
@@ -24,9 +24,9 @@ const CarouselComp = (props) => {
         ))}
       </Carousel.ItemGroup>
 
-      <Carousel.Control justifyContent="center" gap="4">
+      <Carousel.Control justifyContent="center" gap="3" mt="3">
         <Carousel.PrevTrigger asChild>
-          <IconButton size="xs" variant="ghost">
+          <IconButton size="sm" variant="outline" borderRadius="full">
             <LuChevronLeft />
           </IconButton>
         </Carousel.PrevTrigger>
@@ -34,7 +34,7 @@ const CarouselComp = (props) => {
         <Carousel.Indicators />
 
         <Carousel.NextTrigger asChild>
-          <IconButton size="xs" variant="ghost">
+          <IconButton size="sm" variant="outline" borderRadius="full">
             <LuChevronRight />
           </IconButton>
         </Carousel.NextTrigger>

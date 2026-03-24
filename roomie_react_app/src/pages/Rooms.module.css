@@ -4,7 +4,136 @@
   gap: 1.5rem;
   margin-top: 2.5rem;
   margin-bottom: 2.5rem;
-  padding: auto;
+  padding: 0;
   justify-content: center;
   align-items: center;
+}
+
+.filterPanel {
+  border: 1px solid var(--chakra-colors-border-muted);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  width: min(90%, 600px);
+}
+
+.filterTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+}
+
+.filtersStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.valueText {
+  font-size: 0.875rem;
+  color: var(--chakra-colors-fg-muted);
+  margin: 0;
+}
+
+.searchInput {
+  width: 100%;
+}
+
+.rangeInput {
+  width: 100%;
+}
+
+.locationText {
+  font-size: 0.75rem;
+  color: var(--chakra-colors-fg-muted);
+  margin: 0.5rem 0 0;
+}
+
+.smokingButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.smokingButton {
+  border: 1px solid var(--chakra-colors-border-muted);
+  background: transparent;
+  color: inherit;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.smokingButtonActive {
+  background: var(--chakra-colors-blue-600);
+  border-color: var(--chakra-colors-blue-600);
+  color: white;
+}
+
+.locationButton {
+  width: fit-content;
+  border: 1px solid var(--chakra-colors-border-muted);
+  background: transparent;
+  color: inherit;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.resultsInfo {
+  font-size: 0.875rem;
+  color: var(--chakra-colors-fg-muted);
+  margin: 0.25rem 0 0;
+}
+
+.roomsGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2.5rem 0;
+}
+
+.emptyText {
+  color: var(--chakra-colors-fg-muted);
+  font-size: 1rem;
+  margin: 0;
+}
+
+@media (min-width: 48em) {
+  .filterPanel {
+    width: min(80%, 600px);
+  }
+}
+
+@media (min-width: 62em) {
+  .filterPanel {
+    width: min(70%, 600px);
+  }
 }

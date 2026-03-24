@@ -21,9 +21,9 @@ public class HousingDto {
 
     private String address;
 
-    private Long latitude;
+    private Double latitude;
 
-    private Long longitude;
+    private Double longitude;
 
     private String city;
 
