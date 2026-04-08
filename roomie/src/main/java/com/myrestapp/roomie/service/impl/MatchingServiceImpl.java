@@ -40,12 +40,14 @@ public class MatchingServiceImpl implements MatchingService {
                 .map(profile -> {
 
                    double score = calculateScore(lifestyleProfile, profile);
-                   System.out.println("Calculated score: " + score + " for profile ID: " + profile.getId());
+                   double roundScore =  Math.round(score * 100.0) / 100.0;
+
+                   System.out.println("Calculated score: " + roundScore + " for profile ID: " + profile.getId());
 
                     UserInfoDto user = userService.findByLifestyleProfileId(profile.getId())
                             .orElseThrow(() -> new RuntimeException("User not found"));
 
-                    return new MatchResultDto(user.getId(), score);
+                    return new MatchResultDto(user.getId(), roundScore);
                 })
                 .filter(r -> r.getScore() > 0.6)
                 .sorted(Comparator.comparingDouble(MatchResultDto::getScore).reversed())

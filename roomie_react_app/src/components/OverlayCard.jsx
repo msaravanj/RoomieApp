@@ -26,9 +26,27 @@ import { IoMaleFemale } from "react-icons/io5";
 import CarouselComp from "./CarouselComp";
 import { Link } from "react-router-dom";
 
-const OverlayCard = ({ room, photos, open, onOpenChange, openMapDialog }) => {
+const OverlayCard = ({
+  room,
+  photos,
+  matching,
+  open,
+  onOpenChange,
+  openMapDialog,
+}) => {
   const [user, setUser] = useState(null);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
+
+  const formatMatchingScore = (score) => {
+    const numericScore = Number(score);
+
+    if (!Number.isFinite(numericScore)) {
+      return score;
+    }
+
+    const percentage = numericScore <= 1 ? numericScore * 100 : numericScore;
+    return `${Math.round(percentage)}%`;
+  };
 
   const findLifestyleProfile = async (userId) => {
     try {
@@ -219,6 +237,17 @@ const OverlayCard = ({ room, photos, open, onOpenChange, openMapDialog }) => {
                         <IoMaleFemale />
                         <Text>{user.gender}</Text>
                       </HStack>
+                      {matching?.score !== undefined &&
+                        matching?.score !== null && (
+                          <HStack gap="2" align="center">
+                            <Text fontWeight="medium" color="green.500">
+                              Roomie match:
+                            </Text>
+                            <Text fontWeight="bold" color="green.500">
+                              {formatMatchingScore(matching.score)}
+                            </Text>
+                          </HStack>
+                        )}
                       {lifestyleProfile && (
                         <Flex
                           direction="column"

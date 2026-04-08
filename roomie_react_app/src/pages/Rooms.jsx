@@ -1,5 +1,12 @@
 import React, { Suspense, useEffect, useState, useMemo } from "react";
-import { Box, Flex, createOverlay, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  createOverlay,
+  createListCollection,
+  Input,
+  Select,
+} from "@chakra-ui/react";
 import RoomCard from "../components/RoomCard";
 import OverlayCard from "../components/OverlayCard";
 import Map from "../components/Map";
@@ -15,12 +22,45 @@ const Rooms = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [smokingFilter, setSmokingFilter] = useState("");
   const [lifestyleProfiles, setLifestyleProfiles] = useState({});
+  const [matchings, setMatchings] = useState([]);
+  const [sortBy, setSortBy] = useState("none");
+
+  const sortOptions = useMemo(
+    () =>
+      createListCollection({
+        items: [
+          { label: "-", value: "none" },
+          { label: "Price (low to high)", value: "priceAsc" },
+          { label: "Roomie match (high to low)", value: "matchingDesc" },
+        ],
+      }),
+    [],
+  );
+
+  const matchingScoreByUserId = useMemo(() => {
+    const scoreMap = {};
+
+    for (const matching of matchings) {
+      const numericScore = Number(matching?.score);
+
+      if (
+        matching?.userId !== undefined &&
+        matching?.userId !== null &&
+        Number.isFinite(numericScore)
+      ) {
+        scoreMap[String(matching.userId)] = numericScore;
+      }
+    }
+
+    return scoreMap;
+  }, [matchings]);
 
   const roomDialog = createOverlay((overlay) => {
     return (
       <OverlayCard
         room={overlay}
         photos={photos.filter((photo) => photo.housingId === overlay.id)}
+        matching={matchings.find((m) => m.userId == overlay.userId)}
         open={overlay.open}
         onOpenChange={overlay.onOpenChange}
         openMapDialog={() => openMapDialog(overlay)}
@@ -91,6 +131,27 @@ const Rooms = () => {
       latitude: 44.7866,
       longitude: 20.4489,
     });
+  };
+
+  const fetchMatchings = async () => {
+    try {
+      const user = await fetchUser(localStorage.getItem("userId"));
+      const response = await fetch(
+        `http://localhost:8080/api/matchings/${user.lifestyleProfileId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+      const data = await response.json();
+      console.log("Fetched matchings:", data);
+      setMatchings(data);
+    } catch (error) {
+      console.error("Error fetching matchings:", error);
+    }
   };
 
   const fetchPhotos = async () => {
@@ -173,7 +234,7 @@ const Rooms = () => {
   }, [rooms]);
 
   const filteredRooms = useMemo(() => {
-    return rooms.filter((room) => {
+    const result = rooms.filter((room) => {
       // Search filter - tekst pretraga po imenu i opisu
       const searchLower = searchText.toLowerCase();
       const matchesSearch =
@@ -220,6 +281,32 @@ const Rooms = () => {
 
       return matchesSearch && matchesPrice && matchesSmoking && matchesDistance;
     });
+
+    if (sortBy === "priceAsc") {
+      return [...result].sort((a, b) => {
+        const priceA = Number(a.pricePerMonth);
+        const priceB = Number(b.pricePerMonth);
+        const normalizedPriceA = Number.isFinite(priceA)
+          ? priceA
+          : Number.POSITIVE_INFINITY;
+        const normalizedPriceB = Number.isFinite(priceB)
+          ? priceB
+          : Number.POSITIVE_INFINITY;
+
+        return normalizedPriceA - normalizedPriceB;
+      });
+    }
+
+    if (sortBy === "matchingDesc") {
+      return [...result].sort((a, b) => {
+        const scoreA = matchingScoreByUserId[String(a.userId)] ?? -1;
+        const scoreB = matchingScoreByUserId[String(b.userId)] ?? -1;
+
+        return scoreB - scoreA;
+      });
+    }
+
+    return result;
   }, [
     rooms,
     searchText,
@@ -228,6 +315,8 @@ const Rooms = () => {
     userLocation,
     smokingFilter,
     lifestyleProfiles,
+    sortBy,
+    matchingScoreByUserId,
   ]);
 
   const fetchRooms = async () => {
@@ -240,7 +329,13 @@ const Rooms = () => {
         },
       });
       const data = await response.json();
-      setRooms(data);
+      const currentUserId = localStorage.getItem("userId");
+      const filteredRooms = Array.isArray(data)
+        ? data.filter(
+            (room) => !currentUserId || String(room.userId) !== currentUserId,
+          )
+        : [];
+      setRooms(filteredRooms);
     } catch (error) {
       console.error("Error fetching rooms:", error);
     }
@@ -249,6 +344,7 @@ const Rooms = () => {
   useEffect(() => {
     fetchRooms();
     fetchPhotos();
+    fetchMatchings();
   }, []);
 
   return (
@@ -331,6 +427,38 @@ const Rooms = () => {
             </div>
           </Box>
 
+          <Box className={styles.filterSection}>
+            <p className={styles.filterLabel}>Sort by:</p>
+            <Select.Root
+              collection={sortOptions}
+              value={[sortBy]}
+              onValueChange={(details) =>
+                setSortBy(details.value?.[0] ?? "none")
+              }
+              width="full"
+            >
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger className={styles.searchInput}>
+                  <Select.ValueText placeholder="-" />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Select.Positioner>
+                <Select.Content>
+                  {sortOptions.items.map((option) => (
+                    <Select.Item item={option} key={option.value}>
+                      {option.label}
+                      <Select.ItemIndicator />
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select.Positioner>
+            </Select.Root>
+          </Box>
+
           <button
             type="button"
             className={styles.locationButton}
@@ -361,6 +489,7 @@ const Rooms = () => {
                 openRoomDialog={() => openRoomDialog(room)}
                 openMapDialog={() => openMapDialog(room)}
                 rooms={rooms}
+                matching={matchings.find((m) => m.userId == room.userId)}
               />
             </Suspense>
           ))
