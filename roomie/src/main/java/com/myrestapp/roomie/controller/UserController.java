@@ -70,12 +70,10 @@ public class UserController {
         return theUser;
     }
 
-
-    @PreAuthorize("#theUser.id == authentication.principal.id or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/users")
     public void updateUser(@RequestBody UserDto theUser) {
         userService.save(theUser);
-
     }
 
     @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")

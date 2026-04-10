@@ -17,6 +17,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Rooms", href: "/rooms" },
   { label: "Chat", href: "/chat" },
+  { label: "Profile", href: "/profile" },
 ];
 
 const Navbar = () => {

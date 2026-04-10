@@ -8,6 +8,7 @@ import NewPlace from "@/pages/NewPlace";
 import Rooms from "@/pages/Rooms";
 import ChatPage from "@/pages/ChatPage";
 import ChatBotPage from "@/pages/ChatBotPage";
+import ProfilePage from "@/pages/ProfilePage";
 import {
   BrowserRouter,
   Routes,
@@ -230,6 +231,12 @@ function App() {
             ) : (
               <ChatBotPage />
             )
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            !authUserId ? <Navigate to="/login" replace /> : <ProfilePage />
           }
         />
         <Route

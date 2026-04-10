@@ -10,10 +10,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"housing", "lifestyleProfile"})
+@EqualsAndHashCode(exclude = {"housing", "lifestyleProfile"})
 @Table(name = "user")
 public class User {
 

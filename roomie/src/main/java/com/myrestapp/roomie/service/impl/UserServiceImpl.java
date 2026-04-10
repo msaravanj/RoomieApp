@@ -52,9 +52,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(UserDto theUser) {
+
         LifestyleProfile lifestyleProfile = lifestyleProfileRepository.findById(theUser.getLifestyleProfileId())
                 .orElseThrow(() -> new RuntimeException("LifestyleProfile not found"));
-        userRepository.save(UserMapper.toEntity(theUser, lifestyleProfile));
+
+        if (theUser.getId() == 0) {
+            // CREATE
+            User newUser = UserMapper.toEntity(theUser, lifestyleProfile);
+            userRepository.save(newUser);
+        } else {
+            // UPDATE
+            User existingUser = userRepository.findById(theUser.getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            existingUser.setName(theUser.getName());
+            existingUser.setLastName(theUser.getLastName());
+            existingUser.setGender(theUser.getGender());
+            existingUser.setYob(theUser.getYob());
+            existingUser.setCity(theUser.getCity());
+            existingUser.setDescription(theUser.getDescription());
+            existingUser.setProfilePictureUrl(theUser.getProfilePictureUrl());
+            existingUser.setHasAccomodation(theUser.isHasAccomodation());
+
+            existingUser.setLifestyleProfile(lifestyleProfile);
+
+            userRepository.save(existingUser);
+        }
     }
 
     @Override
