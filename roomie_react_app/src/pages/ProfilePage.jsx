@@ -124,6 +124,9 @@ const ProfilePage = () => {
           yob: userData.yob || "",
         });
       }
+      if (userData.hasAccomodation) {
+        fetchRoom(userData.id);
+      }
     });
   }, []);
 
@@ -376,7 +379,15 @@ const ProfilePage = () => {
             <Card.Root borderRadius="2xl" boxShadow="md">
               <Card.Body p={8}>
                 <VStack align="stretch" spacing={6}>
-                  <Heading size="md">Profile Details</Heading>
+                  <Heading
+                    size="md"
+                    fontWeight="extrabold"
+                    letterSpacing="wider"
+                    textTransform="uppercase"
+                    color="green.600"
+                  >
+                    Profile Details
+                  </Heading>
 
                   {!isEditMode ? (
                     <VStack spacing={4} align="stretch">
@@ -463,43 +474,113 @@ const ProfilePage = () => {
                       </Box>
                     </VStack>
                   )}
+
+                  <HStack justify="center" spacing={4} pt={2}>
+                    {!isEditMode ? (
+                      <Button
+                        colorPalette="green"
+                        size="lg"
+                        onClick={() => setIsEditMode(true)}
+                        leftIcon={<LuPencil />}
+                      >
+                        Edit Profile
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          colorPalette="green"
+                          size="lg"
+                          onClick={handleSave}
+                          isLoading={loading}
+                          leftIcon={<LuSave />}
+                        >
+                          Save Changes
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={handleCancel}
+                          leftIcon={<LuX />}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    )}
+                  </HStack>
                 </VStack>
               </Card.Body>
             </Card.Root>
 
-            {/* Action Buttons */}
-            <HStack justify="center" spacing={4}>
-              {!isEditMode ? (
-                <Button
-                  colorPalette="green"
-                  size="lg"
-                  onClick={() => setIsEditMode(true)}
-                  leftIcon={<LuPencil />}
-                >
-                  Edit Profile
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    colorPalette="green"
-                    size="lg"
-                    onClick={handleSave}
-                    isLoading={loading}
-                    leftIcon={<LuSave />}
-                  >
-                    Save Changes
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={handleCancel}
-                    leftIcon={<LuX />}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              )}
-            </HStack>
+            {room && (
+              <Card.Root borderRadius="2xl" boxShadow="md">
+                <Card.Body p={8}>
+                  <VStack align="stretch" spacing={6}>
+                    <Heading
+                      size="md"
+                      fontWeight="extrabold"
+                      letterSpacing="wider"
+                      textTransform="uppercase"
+                      color="green.600"
+                    >
+                      Room Info
+                    </Heading>
+
+                    <VStack spacing={4} align="stretch">
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Name</Text>
+                        <Text>{room.name || "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Address</Text>
+                        <Text>{room.address || "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">City</Text>
+                        <Text>{room.city || "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between" align="start">
+                        <Text fontWeight="medium">Description</Text>
+                        <Text textAlign="right" maxW="70%">
+                          {room.description || "-"}
+                        </Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Capacity</Text>
+                        <Text>{room.capacity ?? "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Number of Rooms</Text>
+                        <Text>{room.numberOfRooms ?? "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Price per Month</Text>
+                        <Text>
+                          {room.pricePerMonth != null
+                            ? `${room.pricePerMonth} EUR`
+                            : "-"}
+                        </Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Size (m²)</Text>
+                        <Text>{room.sizeM2 ?? "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Pet Friendly</Text>
+                        <Text>{room.isPetFriendly ? "Yes" : "No"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Available From</Text>
+                        <Text>{room.availableFrom || "-"}</Text>
+                      </HStack>
+                      <HStack justify="space-between">
+                        <Text fontWeight="medium">Available To</Text>
+                        <Text>{room.availableTo || "-"}</Text>
+                      </HStack>
+                    </VStack>
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+            )}
           </VStack>
         ) : (
           <Box textAlign="center" py={12}>

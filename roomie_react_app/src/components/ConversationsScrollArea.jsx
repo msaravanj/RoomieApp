@@ -170,7 +170,7 @@ const ScrollAreaComp = (props) => {
               return (
                 <ConversationSelect
                   key={partner.id}
-                  photoUrl={partner.photoUrl}
+                  photoUrl={partner.profilePictureUrl}
                   name={partner.name + " " + partner.lastName}
                   userId={partner.id}
                   lastMessage={conversation.lastMessageContent}

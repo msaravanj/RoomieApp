@@ -15,6 +15,29 @@ const MessagingWindow = (props) => {
 
   const scrollAreaRef = useRef(null);
 
+  const updateConversation = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/conversations", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          id: conversation.id,
+          lastMessageContent: message,
+          lastUpdated: new Date(),
+        }),
+      });
+      if (!response.ok) {
+        console.error("Failed to update conversation: ", response.status);
+        return;
+      }
+    } catch (error) {
+      console.error("Error updating conversation: ", error);
+    }
+  };
+
   useEffect(() => {
     if (searchParams.get("id") > 0) {
       (async () => {
@@ -113,29 +136,12 @@ const MessagingWindow = (props) => {
   useEffect(() => {
     if (searchParams.get("id") > 0) {
       const userId = Number(searchParams.get("id"));
-      console.log(
-        "[MessagingWindow] Listening for messages with userId:",
-        userId,
-        "currentUserId:",
-        currentUserId,
-      );
 
       const handler = (event) => {
         const msg = event.detail;
         console.log("[MessagingWindow] Received chat-message event:", msg);
-        console.log(
-          "[MessagingWindow] Checking: msg.senderId=",
-          msg.senderId,
-          "userId=",
-          userId,
-          "msg.receiverId=",
-          msg.receiverId,
-        );
 
         if (msg.senderId === userId || msg.receiverId === userId) {
-          console.log(
-            "[MessagingWindow] Message passes filter, adding to messages",
-          );
           // Provjeri da poruka već ne postoji (izbjegni duplikate)
           setMessages((prev) => {
             const exists = prev.some(
@@ -146,13 +152,12 @@ const MessagingWindow = (props) => {
                   2000,
             );
             if (exists) {
-              console.log("[MessagingWindow] Message already exists, skipping");
               return prev;
             }
             return [...prev, msg];
           });
         } else {
-          console.log("[MessagingWindow] Message does NOT pass filter");
+          console.log("[MessagingWindow] Message does not pass filter");
         }
       };
 
@@ -192,6 +197,7 @@ const MessagingWindow = (props) => {
     setMessages((prev) => [...prev, { ...msgObj, id: Date.now() }]);
 
     sendMessage(msgObj); // ide u Spring + DB
+    updateConversation();
 
     window.dispatchEvent(new CustomEvent("chat-message", { detail: msgObj }));
     setMessage("");
@@ -207,7 +213,7 @@ const MessagingWindow = (props) => {
         <HStack gap="8" bg="gray.800" padding="4">
           <Avatar.Root>
             <Avatar.Fallback name={receiver.name + " " + receiver.lastName} />
-            <Avatar.Image src={receiver.photoUrl} />
+            <Avatar.Image src={receiver.profilePictureUrl} />
           </Avatar.Root>
           <Text fontWeight="medium">
             {receiver.name + " " + receiver.lastName}
