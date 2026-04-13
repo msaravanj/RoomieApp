@@ -9,6 +9,7 @@ import {
   Avatar,
   Button,
   CloseButton,
+  Image,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -36,6 +37,7 @@ const OverlayCard = ({
 }) => {
   const [user, setUser] = useState(null);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const formatMatchingScore = (score) => {
     const numericScore = Number(score);
@@ -222,7 +224,17 @@ const OverlayCard = ({
                   {user && (
                     <Flex direction="column" justifyContent="center" gap="4">
                       <HStack gap="4" align="center" marginBottom="2">
-                        <Avatar.Root size="2xl" key="user">
+                        <Avatar.Root
+                          size="2xl"
+                          key="user"
+                          cursor={
+                            user.profilePictureUrl ? "pointer" : "default"
+                          }
+                          onClick={() =>
+                            user.profilePictureUrl &&
+                            setSelectedImage(user.profilePictureUrl)
+                          }
+                        >
                           <Avatar.Fallback
                             name={`${user.name} ${user.lastName}`}
                           />
@@ -288,6 +300,29 @@ const OverlayCard = ({
                   </Box>
                 )}
               </Flex>
+
+              {selectedImage && (
+                <Box
+                  position="fixed"
+                  inset={0}
+                  bg="blackAlpha.800"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  zIndex={3000}
+                  p={4}
+                  onClick={() => setSelectedImage(null)}
+                >
+                  <Image
+                    src={selectedImage}
+                    alt="Enlarged profile photo"
+                    maxW="90vw"
+                    maxH="85vh"
+                    borderRadius="lg"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </Box>
+              )}
             </Dialog.Body>
             <Dialog.CloseTrigger asChild>
               <CloseButton size="md" />

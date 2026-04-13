@@ -40,14 +40,14 @@ public class PhotoController {
     }
 
     @GetMapping("/photos/housing/{housingId}")
-    public PhotoDto getPhotoByHousingId(@PathVariable int housingId){
-        PhotoDto thePhoto = photoService.findByHousingId(housingId);
+    public List<PhotoDto> getPhotosByHousingId(@PathVariable int housingId){
+        List<PhotoDto> photos = photoService.findPhotosByHousingId(housingId);
 
-        if (thePhoto == null) {
-            throw new RuntimeException("Photo for housing id - " + housingId + " - not found");
+        if (photos.isEmpty()) {
+            throw new RuntimeException("No photos found for housing id - " + housingId);
         }
 
-        return thePhoto;
+        return photos;
     }
 
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(#thePhoto.housingId).userId")
@@ -65,7 +65,6 @@ public class PhotoController {
         photoService.save(thePhoto);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(photoService.findById(#photoId).housingId).userId")
     @DeleteMapping("/photos/{photoId}")
     public void deletePhoto(@PathVariable int photoId) {
         PhotoDto tempPhoto = photoService.findById(photoId);

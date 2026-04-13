@@ -9,6 +9,7 @@ import Rooms from "@/pages/Rooms";
 import ChatPage from "@/pages/ChatPage";
 import ChatBotPage from "@/pages/ChatBotPage";
 import ProfilePage from "@/pages/ProfilePage";
+import { Toaster } from "@/components/ui/toaster";
 import {
   BrowserRouter,
   Routes,
@@ -120,11 +121,69 @@ const LifestyleProfileWatcher = ({ authUserId, onProfileStatusChange }) => {
   return null;
 };
 
+const HousingWatcher = ({ authUserId, onHousingStatusChange }) => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!authUserId) {
+      onHousingStatusChange("idle");
+      return;
+    }
+
+    let isActive = true;
+    onHousingStatusChange("loading");
+
+    const loadHousing = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/housings/user/${authUserId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        if (!response.ok) {
+          if (isActive) {
+            onHousingStatusChange("missing");
+          }
+          return;
+        }
+
+        const housingData = await response.json();
+
+        if (!isActive) return;
+
+        onHousingStatusChange(housingData?.id ? "exists" : "missing");
+      } catch (error) {
+        console.error("Error fetching housing for route guard:", error);
+        if (isActive) {
+          onHousingStatusChange("missing");
+        }
+      }
+    };
+
+    loadHousing();
+
+    return () => {
+      isActive = false;
+    };
+  }, [authUserId, location.pathname, onHousingStatusChange]);
+
+  return null;
+};
+
 function App() {
   const [authUserId, setAuthUserId] = useState(() =>
     localStorage.getItem("userId"),
   );
   const [profileStatus, setProfileStatus] = useState(() =>
+    localStorage.getItem("userId") ? "loading" : "idle",
+  );
+  const [housingStatus, setHousingStatus] = useState(() =>
     localStorage.getItem("userId") ? "loading" : "idle",
   );
 
@@ -133,6 +192,7 @@ function App() {
       const nextUserId = localStorage.getItem("userId");
       setAuthUserId(nextUserId);
       setProfileStatus(nextUserId ? "loading" : "idle");
+      setHousingStatus(nextUserId ? "loading" : "idle");
     };
 
     window.addEventListener(AUTH_CHANGE_EVENT, syncAuthUserId);
@@ -146,10 +206,15 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster />
       <AuthWatcher />
       <LifestyleProfileWatcher
         authUserId={authUserId}
         onProfileStatusChange={setProfileStatus}
+      />
+      <HousingWatcher
+        authUserId={authUserId}
+        onHousingStatusChange={setHousingStatus}
       />
       <Navbar />
       <Routes>
@@ -200,9 +265,12 @@ function App() {
           element={
             !authUserId ? (
               <Navigate to="/login" replace />
-            ) : profileStatus === "loading" ? null : profileStatus ===
+            ) : profileStatus === "loading" ||
+              housingStatus === "loading" ? null : profileStatus ===
               "missing" ? (
               <Navigate to="/chatbot" replace />
+            ) : housingStatus === "exists" ? (
+              <Navigate to="/" replace />
             ) : (
               <NewPlace />
             )

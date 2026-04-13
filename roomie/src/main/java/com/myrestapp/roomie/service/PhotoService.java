@@ -12,6 +12,8 @@ public interface PhotoService {
 
     PhotoDto findByHousingId(int housingId);
 
+    List<PhotoDto> findPhotosByHousingId(int housingId);
+
     void save(PhotoDto thePhoto);
 
     void deleteById(int theId);

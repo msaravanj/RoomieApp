@@ -13,18 +13,25 @@ import {
   Card,
   Heading,
   Text,
+  Image,
   Checkbox,
   NativeSelect,
+  Dialog,
+  Portal,
 } from "@chakra-ui/react";
-import { LuFileImage, LuPencil, LuSave, LuX } from "react-icons/lu";
+import { LuFileImage, LuPencil, LuSave, LuX, LuPlus } from "react-icons/lu";
 import { toaster } from "../components/ui/toaster";
 import { getAuthToken } from "../util/auth";
+import { Link } from "react-router-dom";
+import { getCoords } from "../util/locationService";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
   const [room, setRoom] = useState(null);
+  const [roomPhotos, setRoomPhotos] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isRoomEditMode, setIsRoomEditMode] = useState(false);
   const [profileData, setProfileData] = useState({
     id: null,
     name: "",
@@ -38,8 +45,61 @@ const ProfilePage = () => {
     lifestyleProfileId: null,
     yob: "",
   });
+  const [roomData, setRoomData] = useState({
+    id: null,
+    name: "",
+    address: "",
+    city: "",
+    description: "",
+    capacity: null,
+    numberOfRooms: null,
+    pricePerMonth: "",
+    sizeM2: null,
+    isPetFriendly: false,
+    availableFrom: "",
+    availableTo: "",
+    latitude: null,
+    longitude: null,
+  });
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [roomPhotoUploading, setRoomPhotoUploading] = useState(false);
+  const [selectedRoomImage, setSelectedRoomImage] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogType, setDeleteDialogType] = useState(null);
+  const [deleteDialogTargetId, setDeleteDialogTargetId] = useState(null);
+  const roomImages = roomPhotos || [];
+
+  const openDeleteDialog = (type, targetId) => {
+    setDeleteDialogType(type);
+    setDeleteDialogTargetId(targetId);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setDeleteDialogType(null);
+    setDeleteDialogTargetId(null);
+  };
+
+  const confirmDeleteDialog = async () => {
+    const targetId = deleteDialogTargetId;
+
+    closeDeleteDialog();
+
+    if (!targetId) {
+      return;
+    }
+
+    if (deleteDialogType === "photo") {
+      await deletePhoto(targetId);
+      return;
+    }
+
+    if (deleteDialogType === "room") {
+      await deleteRoom(targetId);
+    }
+  };
 
   const fetchUserData = async () => {
     try {
@@ -81,6 +141,25 @@ const ProfilePage = () => {
     }
   };
 
+  const fetchRoomPhotos = async (roomId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/photos/housing/${roomId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        },
+      );
+      const photos = await response.json();
+      setRoomPhotos(photos);
+    } catch (error) {
+      console.error("Error fetching room photos:", error);
+    }
+  };
+
   const fetchRoom = async (userId) => {
     try {
       const response = await fetch(
@@ -95,20 +174,96 @@ const ProfilePage = () => {
       );
       const room = await response.json();
       setRoom(room);
+      setRoomData({
+        id: room?.id ?? null,
+        name: room?.name || "",
+        address: room?.address || "",
+        city: room?.city || "",
+        description: room?.description || "",
+        capacity: room?.capacity ?? null,
+        numberOfRooms: room?.numberOfRooms ?? null,
+        pricePerMonth: room?.pricePerMonth ?? null,
+        sizeM2: room?.sizeM2 ?? null,
+        isPetFriendly: Boolean(room?.isPetFriendly),
+        availableFrom: room?.availableFrom || "",
+        availableTo: room?.availableTo || "",
+        latitude: room?.latitude ?? null,
+        longitude: room?.longitude ?? null,
+      });
       return room;
     } catch (error) {
       console.error("Error fetching room data:", error);
     }
   };
 
+  const deleteRoom = async (roomId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/housings/${roomId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete room");
+      } else {
+        toaster.create({
+          description: "Room deleted successfully",
+          type: "success",
+        });
+        setRoom(null);
+        setRoomPhotos([]);
+        setSelectedRoomImage(null);
+        setIsRoomEditMode(false);
+      }
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      toaster.create({
+        description: "Failed to delete room",
+        type: "error",
+      });
+    }
+  };
+
+  const deletePhoto = async (photoId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/photos/${photoId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete photo");
+      }
+
+      setRoomPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+      toaster.create({
+        description: "Photo deleted successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+      toaster.create({
+        description: "Failed to delete photo",
+        type: "error",
+      });
+    }
+  };
+
   useEffect(() => {
-    fetchUserData().then((userData) => {
+    fetchUserData().then(async (userData) => {
       if (userData && userData.lifestyleProfileId) {
         fetchLifestyleProfile(userData.lifestyleProfileId);
       }
-      if (userData && userData.hasAccomodation) {
-        fetchRoom(userData.id);
-      }
+
       if (userData) {
         setProfileData({
           id: userData.id,
@@ -124,14 +279,24 @@ const ProfilePage = () => {
           yob: userData.yob || "",
         });
       }
-      if (userData.hasAccomodation) {
-        fetchRoom(userData.id);
+      if (userData && userData.hasAccomodation) {
+        const fetchedRoom = await fetchRoom(userData.id);
+        if (fetchedRoom?.id) {
+          fetchRoomPhotos(fetchedRoom.id);
+        }
       }
     });
   }, []);
 
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleRoomInputChange = (field, value) => {
+    setRoomData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -174,7 +339,153 @@ const ProfilePage = () => {
     }
   };
 
-  const handleSave = async () => {
+  const uploadRoomPhoto = async (file) => {
+    if (!file) return;
+
+    const housingId = roomData.id || room?.id;
+    if (!housingId) {
+      toaster.create({
+        description: "Save room info first so photos can be attached.",
+        type: "warning",
+      });
+      return;
+    }
+
+    setRoomPhotoUploading(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+
+      const uploadResponse = await fetch(
+        "http://localhost:8080/api/photos/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+          body: uploadData,
+        },
+      );
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload room photo");
+      }
+
+      const uploadedUrl = await uploadResponse.text();
+
+      const saveResponse = await fetch("http://localhost:8080/api/photos", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: null,
+          url: uploadedUrl,
+          housingId,
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        const errorText = await saveResponse.text();
+        throw new Error(errorText || "Failed to save photo in database");
+      }
+
+      await fetchRoomPhotos(housingId);
+      toaster.create({
+        description: "Room photo uploaded successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error uploading room photo:", error);
+      toaster.create({
+        description:
+          error?.message && error.message !== "[object Object]"
+            ? error.message
+            : "Failed to upload room photo",
+        type: "error",
+      });
+    } finally {
+      setRoomPhotoUploading(false);
+    }
+  };
+
+  const handleSaveRoomInfo = async () => {
+    setLoading(true);
+    try {
+      const token = getAuthToken();
+      const coords = await getCoords(`${roomData.address}, ${roomData.city}`);
+      const payload = {
+        id: roomData.id,
+        userId: user.id,
+        name: roomData.name,
+        address: roomData.address,
+        city: roomData.city,
+        description: roomData.description,
+        capacity: roomData.capacity,
+        numberOfRooms: roomData.numberOfRooms,
+        pricePerMonth: roomData.pricePerMonth,
+        sizeM2: roomData.sizeM2,
+        isPetFriendly: roomData.isPetFriendly,
+        availableFrom: roomData.availableFrom,
+        availableTo: roomData.availableTo,
+        latitude: coords ? coords[0] : roomData.latitude,
+        longitude: coords ? coords[1] : roomData.longitude,
+      };
+      const response = await fetch(`http://localhost:8080/api/housings`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to update room info");
+      }
+      await fetchRoom(user.id);
+      setIsRoomEditMode(false);
+      toaster.create({
+        description: "Room info updated successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error updating room info:", error);
+      toaster.create({
+        description:
+          error?.message && error.message !== "[object Object]"
+            ? error.message
+            : "Failed to update room info",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelRoomInfo = () => {
+    setRoomData({
+      id: room?.id ?? null,
+      userId: user?.id ?? null,
+      name: room?.name || "",
+      address: room?.address || "",
+      city: room?.city || "",
+      description: room?.description || "",
+      capacity: room?.capacity ?? null,
+      numberOfRooms: room?.numberOfRooms ?? null,
+      pricePerMonth: room?.pricePerMonth ?? null,
+      sizeM2: room?.sizeM2 ?? null,
+      isPetFriendly: Boolean(room?.isPetFriendly),
+      availableFrom: room?.availableFrom || "",
+      availableTo: room?.availableTo || "",
+      latitude: room?.latitude ?? null,
+      longitude: room?.longitude ?? null,
+    });
+    setIsRoomEditMode(false);
+  };
+
+  const handleSaveProfileInfo = async () => {
     setLoading(true);
     try {
       const token = getAuthToken();
@@ -227,7 +538,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handleCancel = () => {
+  const handleCancelProfileInfo = () => {
     setProfileData({
       id: user?.id || "",
       name: user?.name || "",
@@ -266,6 +577,14 @@ const ProfilePage = () => {
                       size="2xl"
                       borderRadius="30rem"
                       borderWidth="4px"
+                      cursor="pointer"
+                      onClick={() =>
+                        setSelectedRoomImage(
+                          profileData.profilePictureUrl ||
+                            user.profilePictureUrl ||
+                            null,
+                        )
+                      }
                     >
                       <Avatar.Fallback
                         name={`${user.name} ${user.lastName}`}
@@ -335,10 +654,6 @@ const ProfilePage = () => {
                           <Text fontWeight="medium">City:</Text>
                           <Text>{user.city || "-"}</Text>
                         </HStack>
-                        <HStack>
-                          <Text fontWeight="medium">Has accommodation:</Text>
-                          <Text>{user.hasAccomodation ? "✓ Yes" : "✗ No"}</Text>
-                        </HStack>
                       </VStack>
                     ) : (
                       <VStack align="start" spacing={4} w="full">
@@ -403,10 +718,6 @@ const ProfilePage = () => {
                         <Text fontWeight="medium">City</Text>
                         <Text>{user.city || "-"}</Text>
                       </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Has Accommodation</Text>
-                        <Text>{user.hasAccomodation ? "Yes" : "No"}</Text>
-                      </HStack>
                     </VStack>
                   ) : (
                     <VStack spacing={4} align="stretch">
@@ -456,22 +767,6 @@ const ProfilePage = () => {
                           size="md"
                         />
                       </Box>
-
-                      <Box>
-                        <Checkbox.Root
-                          checked={profileData.hasAccomodation}
-                          onCheckedChange={(e) =>
-                            handleInputChange(
-                              "hasAccomodation",
-                              Boolean(e.checked),
-                            )
-                          }
-                        >
-                          <Checkbox.HiddenInput />
-                          <Checkbox.Control />
-                          <Checkbox.Label>I have accommodation</Checkbox.Label>
-                        </Checkbox.Root>
-                      </Box>
                     </VStack>
                   )}
 
@@ -490,7 +785,7 @@ const ProfilePage = () => {
                         <Button
                           colorPalette="green"
                           size="lg"
-                          onClick={handleSave}
+                          onClick={handleSaveProfileInfo}
                           isLoading={loading}
                           leftIcon={<LuSave />}
                         >
@@ -499,7 +794,7 @@ const ProfilePage = () => {
                         <Button
                           variant="outline"
                           size="lg"
-                          onClick={handleCancel}
+                          onClick={handleCancelProfileInfo}
                           leftIcon={<LuX />}
                         >
                           Cancel
@@ -525,61 +820,455 @@ const ProfilePage = () => {
                       Room Info
                     </Heading>
 
-                    <VStack spacing={4} align="stretch">
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Name</Text>
-                        <Text>{room.name || "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Address</Text>
-                        <Text>{room.address || "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">City</Text>
-                        <Text>{room.city || "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between" align="start">
-                        <Text fontWeight="medium">Description</Text>
-                        <Text textAlign="right" maxW="70%">
-                          {room.description || "-"}
+                    {!isRoomEditMode ? (
+                      <VStack spacing={4} align="stretch">
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Name</Text>
+                          <Text>{room.name || "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Address</Text>
+                          <Text>{room.address || "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">City</Text>
+                          <Text>{room.city || "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between" align="start">
+                          <Text fontWeight="medium">Description</Text>
+                          <Text textAlign="right" maxW="70%">
+                            {room.description || "-"}
+                          </Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Capacity</Text>
+                          <Text>{room.capacity ?? "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Number of Rooms</Text>
+                          <Text>{room.numberOfRooms ?? "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Price per Month</Text>
+                          <Text>
+                            {room.pricePerMonth != null
+                              ? `${room.pricePerMonth} EUR`
+                              : "-"}
+                          </Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Size (m²)</Text>
+                          <Text>{room.sizeM2 ?? "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Pet Friendly</Text>
+                          <Text>{room.isPetFriendly ? "Yes" : "No"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Available From</Text>
+                          <Text>{room.availableFrom || "-"}</Text>
+                        </HStack>
+                        <HStack justify="space-between">
+                          <Text fontWeight="medium">Available To</Text>
+                          <Text>{room.availableTo || "-"}</Text>
+                        </HStack>
+                      </VStack>
+                    ) : (
+                      <VStack spacing={4} align="stretch">
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Name
+                          </Text>
+                          <Input
+                            value={roomData.name}
+                            onChange={(e) =>
+                              handleRoomInputChange("name", e.target.value)
+                            }
+                            placeholder="Room name"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Address
+                          </Text>
+                          <Input
+                            value={roomData.address}
+                            onChange={(e) =>
+                              handleRoomInputChange("address", e.target.value)
+                            }
+                            placeholder="Address"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            City
+                          </Text>
+                          <Input
+                            value={roomData.city}
+                            onChange={(e) =>
+                              handleRoomInputChange("city", e.target.value)
+                            }
+                            placeholder="City"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Description
+                          </Text>
+                          <Input
+                            value={roomData.description}
+                            onChange={(e) =>
+                              handleRoomInputChange(
+                                "description",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Description"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Capacity
+                          </Text>
+                          <Input
+                            type="number"
+                            value={roomData.capacity}
+                            onChange={(e) =>
+                              handleRoomInputChange("capacity", e.target.value)
+                            }
+                            placeholder="Capacity"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Number of Rooms
+                          </Text>
+                          <Input
+                            type="number"
+                            value={roomData.numberOfRooms}
+                            onChange={(e) =>
+                              handleRoomInputChange(
+                                "numberOfRooms",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Number of rooms"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Price per Month
+                          </Text>
+                          <Input
+                            type="number"
+                            value={roomData.pricePerMonth}
+                            onChange={(e) =>
+                              handleRoomInputChange(
+                                "pricePerMonth",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="Price"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Size (m²)
+                          </Text>
+                          <Input
+                            type="number"
+                            value={roomData.sizeM2}
+                            onChange={(e) =>
+                              handleRoomInputChange("sizeM2", e.target.value)
+                            }
+                            placeholder="Size"
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Checkbox.Root
+                            checked={roomData.isPetFriendly}
+                            onCheckedChange={(e) =>
+                              handleRoomInputChange(
+                                "isPetFriendly",
+                                Boolean(e.checked),
+                              )
+                            }
+                          >
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control />
+                            <Checkbox.Label>Pet Friendly</Checkbox.Label>
+                          </Checkbox.Root>
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Available From
+                          </Text>
+                          <Input
+                            type="date"
+                            value={roomData.availableFrom}
+                            onChange={(e) =>
+                              handleRoomInputChange(
+                                "availableFrom",
+                                e.target.value,
+                              )
+                            }
+                            size="md"
+                          />
+                        </Box>
+                        <Box>
+                          <Text fontWeight="medium" mb={2}>
+                            Available To
+                          </Text>
+                          <Input
+                            type="date"
+                            value={roomData.availableTo}
+                            onChange={(e) =>
+                              handleRoomInputChange(
+                                "availableTo",
+                                e.target.value,
+                              )
+                            }
+                            size="md"
+                          />
+                        </Box>
+
+                        <FileUpload.Root
+                          accept="image/*"
+                          maxFiles={1}
+                          onFileAccept={(details) => {
+                            uploadRoomPhoto(details.files[0]);
+                          }}
+                        >
+                          <FileUpload.HiddenInput />
+                          <FileUpload.Label>Upload room photo</FileUpload.Label>
+                          <InputGroup
+                            startElement={<LuFileImage />}
+                            endElement={
+                              <FileUpload.ClearTrigger asChild>
+                                <CloseButton
+                                  me="-1"
+                                  size="xs"
+                                  variant="plain"
+                                  focusVisibleRing="inside"
+                                  focusRingWidth="2px"
+                                  pointerEvents="auto"
+                                />
+                              </FileUpload.ClearTrigger>
+                            }
+                          >
+                            <Input asChild>
+                              <FileUpload.Trigger>
+                                <FileUpload.FileText lineClamp={1} />
+                              </FileUpload.Trigger>
+                            </Input>
+                          </InputGroup>
+                          {roomPhotoUploading && (
+                            <Text fontSize="sm" color="gray.500">
+                              Uploading room photo...
+                            </Text>
+                          )}
+                        </FileUpload.Root>
+                      </VStack>
+                    )}
+
+                    <Box pt={4}>
+                      {roomImages.length > 0 ? (
+                        <Flex wrap="wrap" gap={3} justify="center">
+                          {roomImages.map((image, index) => (
+                            <Box
+                              key={`${image.url}-${index}`}
+                              position="relative"
+                            >
+                              <Image
+                                src={image.url}
+                                alt={`Room photo ${index + 1}`}
+                                boxSize="120px"
+                                objectFit="cover"
+                                borderRadius="md"
+                                borderWidth="1px"
+                                borderColor="gray.200"
+                                cursor="pointer"
+                                onClick={() => setSelectedRoomImage(image.url)}
+                              />
+                              {isRoomEditMode && image?.id && (
+                                <CloseButton
+                                  size="xs"
+                                  position="absolute"
+                                  top="1"
+                                  right="1"
+                                  bg="red.500"
+                                  color="white"
+                                  border="1px solid"
+                                  borderColor="red.600"
+                                  _hover={{ bg: "red.600" }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openDeleteDialog("photo", image.id);
+                                  }}
+                                />
+                              )}
+                            </Box>
+                          ))}
+                        </Flex>
+                      ) : (
+                        <Text color="gray.500" textAlign="center">
+                          No room photos available.
                         </Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Capacity</Text>
-                        <Text>{room.capacity ?? "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Number of Rooms</Text>
-                        <Text>{room.numberOfRooms ?? "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Price per Month</Text>
-                        <Text>
-                          {room.pricePerMonth != null
-                            ? `${room.pricePerMonth} EUR`
-                            : "-"}
-                        </Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Size (m²)</Text>
-                        <Text>{room.sizeM2 ?? "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Pet Friendly</Text>
-                        <Text>{room.isPetFriendly ? "Yes" : "No"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Available From</Text>
-                        <Text>{room.availableFrom || "-"}</Text>
-                      </HStack>
-                      <HStack justify="space-between">
-                        <Text fontWeight="medium">Available To</Text>
-                        <Text>{room.availableTo || "-"}</Text>
-                      </HStack>
-                    </VStack>
+                      )}
+                    </Box>
+
+                    <HStack justify="center" spacing={4} pt={2}>
+                      {!isRoomEditMode ? (
+                        <Button
+                          colorPalette="green"
+                          size="lg"
+                          onClick={() => setIsRoomEditMode(true)}
+                          leftIcon={<LuPencil />}
+                        >
+                          Edit Room Info
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            colorPalette="green"
+                            size="lg"
+                            onClick={handleSaveRoomInfo}
+                            isLoading={loading}
+                            leftIcon={<LuSave />}
+                          >
+                            Save Changes
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            onClick={handleCancelRoomInfo}
+                            leftIcon={<LuX />}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            colorPalette="red"
+                            size="lg"
+                            variant="solid"
+                            onClick={() => {
+                              const roomId = roomData.id || room?.id;
+                              if (roomId) {
+                                openDeleteDialog("room", roomId);
+                              }
+                            }}
+                          >
+                            Delete Room
+                          </Button>
+                        </>
+                      )}
+                    </HStack>
                   </VStack>
                 </Card.Body>
               </Card.Root>
+            )}
+
+            {!room && (
+              <Card.Root borderRadius="2xl" boxShadow="md">
+                <Card.Body p={8}>
+                  <VStack
+                    spacing={6}
+                    align="center"
+                    justify="center"
+                    minH="300px"
+                  >
+                    <Heading size="lg" textAlign="center">
+                      No accommodation added yet
+                    </Heading>
+                    <Text color="gray.600" textAlign="center">
+                      Start by adding your first place.
+                    </Text>
+                    <Button
+                      colorPalette="green"
+                      size="lg"
+                      as={Link}
+                      to="/new-place"
+                      leftIcon={<LuPlus />}
+                    >
+                      Add new place
+                    </Button>
+                  </VStack>
+                </Card.Body>
+              </Card.Root>
+            )}
+
+            <Dialog.Root
+              open={deleteDialogOpen}
+              onOpenChange={(details) => {
+                if (!details.open) {
+                  closeDeleteDialog();
+                }
+              }}
+            >
+              <Portal>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                  <Dialog.Content
+                    role="alertdialog"
+                    aria-label="Delete confirmation"
+                    borderRadius="2xl"
+                    boxShadow="2xl"
+                  >
+                    <Dialog.Header>
+                      <Dialog.Title>
+                        {deleteDialogType === "photo"
+                          ? "Delete photo?"
+                          : "Delete room?"}
+                      </Dialog.Title>
+                    </Dialog.Header>
+                    <Dialog.Body>
+                      <Text>
+                        {deleteDialogType === "photo"
+                          ? "This photo will be permanently removed."
+                          : "This room will be permanently removed, including its photos."}
+                      </Text>
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                      <Button variant="outline" onClick={closeDeleteDialog}>
+                        Cancel
+                      </Button>
+                      <Button colorPalette="red" onClick={confirmDeleteDialog}>
+                        Delete
+                      </Button>
+                    </Dialog.Footer>
+                  </Dialog.Content>
+                </Dialog.Positioner>
+              </Portal>
+            </Dialog.Root>
+
+            {selectedRoomImage && (
+              <Box
+                position="fixed"
+                inset={0}
+                bg="blackAlpha.800"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                zIndex={2000}
+                p={4}
+                onClick={() => setSelectedRoomImage(null)}
+              >
+                <Image
+                  src={selectedRoomImage}
+                  alt="Enlarged room photo"
+                  maxW="90vw"
+                  maxH="85vh"
+                  borderRadius="lg"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </Box>
             )}
           </VStack>
         ) : (

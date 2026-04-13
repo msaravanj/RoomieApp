@@ -45,7 +45,7 @@ public class HousingController {
         return theHousing;
     }
 
-    @PreAuthorize("#theHousing.userId == authentication.principal.id or hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/housings")
     public void updateHousing(@RequestBody HousingDto theHousing) {
         housingService.save(theHousing);
@@ -60,7 +60,6 @@ public class HousingController {
         return ResponseEntity.ok(saved);
     }
 
-    @PreAuthorize("@housingService.findById(#housingId).userId == authentication.principal.id or hasRole('ADMIN')")
     @DeleteMapping("/housings/{housingId}")
     public void deleteHousing(@PathVariable int housingId) {
         HousingDto tempHousing = housingService.findById(housingId);

@@ -43,6 +43,12 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    public List<PhotoDto> findPhotosByHousingId(int housingId) {
+        return photoRepository.findPhotosByHousing_Id(housingId)
+                .stream().map(PhotoMapper::toDto).toList();
+    }
+
+    @Override
     public void save(PhotoDto thePhoto) {
         Housing housing = housingRepository.findById(thePhoto.getHousingId())
                 .orElseThrow(() -> new RuntimeException("Housing not found"));
