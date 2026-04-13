@@ -5,7 +5,7 @@ import com.myrestapp.roomie.enums.LifestyleQuestion;
 import com.myrestapp.roomie.service.EmbeddingService;
 import com.myrestapp.roomie.validation.LifestyleAnswerValidator;
 import com.myrestapp.roomie.validation.LifestyleChatSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -15,11 +15,22 @@ public class LifestyleChatFlowService {
 
     private final LifestyleAnswerValidator validator;
     private final EmbeddingService embeddingService;
+    private final ChatClient chatClient;
 
 
-    public LifestyleChatFlowService(LifestyleAnswerValidator validator, EmbeddingService embeddingService) {
+    public LifestyleChatFlowService(LifestyleAnswerValidator validator, EmbeddingService embeddingService, ChatClient chatClient) {
         this.validator = validator;
         this.embeddingService = embeddingService;
+        this.chatClient = chatClient;
+    }
+
+    public String checkAnswerValidity(String answer, String question) {
+        String prompt = "Pitanje: " + question + "\n" +
+                "Odgovor korisnika: " + answer + "\n" +
+                "Procijeni ima li ovaj odgovor smisla u kontekstu pitanja. Ne traži dodatne informacije, ne postavljaj pitanja, ne objašnjavaj. " +
+                "Vrati JSON: {valid: true/false, reason: ...}";
+
+        return chatClient.prompt(prompt).call().content();
     }
 
     /**
@@ -36,12 +47,19 @@ public class LifestyleChatFlowService {
 
         //  Validacija odgovora
         Object value = validator.validate(session.getProgress(), answer);
+        String result = checkAnswerValidity(answer, question.getQuestionText());
+        if (result.contains("true")) {
 
-        //  Spremanje u profile
-        applyValue(session.getProfile(), question, value);
+            //  Spremanje u profile
+            applyValue(session.getProfile(), question, value);
 
-        //  Sljedeći korak
-        session.next();
+            //  Sljedeći korak
+            session.next();
+        } else {
+            
+            String r = result.split("\"")[5].trim();
+            throw new IllegalArgumentException(result.contains("reason") ? r : "Neispravan odgovor.");
+        }
     }
 
     /**

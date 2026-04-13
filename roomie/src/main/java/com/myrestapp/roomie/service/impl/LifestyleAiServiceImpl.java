@@ -14,6 +14,7 @@ public class LifestyleAiServiceImpl implements LifestyleAiService {
         this.chatClient = chatClient;
     }
 
+
     @Override
     public String generateLifestyleProfile(LifestyleGenerateRequestDto request) {
         if (request.getAnswers() == null || request.getAnswers().size() != 9) {

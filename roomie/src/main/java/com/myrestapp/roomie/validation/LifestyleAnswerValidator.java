@@ -1,5 +1,7 @@
 package com.myrestapp.roomie.validation;
 
+import com.myrestapp.roomie.enums.LifestyleQuestion;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 import java.time.LocalTime;
 
@@ -37,9 +39,10 @@ public class LifestyleAnswerValidator {
         return v;
     }
 
-    private String parseText(String a) {
-        if (a == null || a.length() < 2)
+    private String parseText(String answer) {
+        if (answer == null || answer.length() < 2) {
             throw new IllegalArgumentException("Odgovor je prekratak.");
-        return a;
+        }
+        return answer;
     }
 }

@@ -49,7 +49,7 @@ public class LifestyleChatSession implements Serializable {
     }
 
     /**
-     * Koliko je pitanja prošlo (korisno za progress bar)
+     * Koliko je pitanja prošlo
      */
     public int getProgress() {
         return step + 1;
