@@ -6,6 +6,8 @@ import {
   createListCollection,
   Input,
   Select,
+  Spinner,
+  Text,
 } from "@chakra-ui/react";
 import RoomCard from "../components/RoomCard";
 import OverlayCard from "../components/OverlayCard";
@@ -24,6 +26,7 @@ const Rooms = () => {
   const [lifestyleProfiles, setLifestyleProfiles] = useState({});
   const [matchings, setMatchings] = useState([]);
   const [sortBy, setSortBy] = useState("none");
+  const [isRoomsListLoading, setIsRoomsListLoading] = useState(true);
 
   const sortOptions = useMemo(
     () =>
@@ -342,9 +345,25 @@ const Rooms = () => {
   };
 
   useEffect(() => {
-    fetchRooms();
-    fetchPhotos();
-    fetchMatchings();
+    let isActive = true;
+
+    const loadInitialData = async () => {
+      if (isActive) {
+        setIsRoomsListLoading(true);
+      }
+
+      await Promise.all([fetchRooms(), fetchPhotos(), fetchMatchings()]);
+
+      if (isActive) {
+        setIsRoomsListLoading(false);
+      }
+    };
+
+    loadInitialData();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return (
@@ -474,7 +493,24 @@ const Rooms = () => {
       </p>
 
       <Flex className={styles.roomsGrid}>
-        {filteredRooms.length > 0 ? (
+        {isRoomsListLoading ? (
+          <Flex
+            minH="320px"
+            w="100%"
+            align="center"
+            justify="center"
+            direction="column"
+            gap={4}
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+            borderRadius="2xl"
+            bg="whiteAlpha.50"
+            backdropFilter="blur(14px)"
+          >
+            <Spinner size="xl" color="cyan.300" />
+            <Text color="whiteAlpha.800">Loading rooms...</Text>
+          </Flex>
+        ) : filteredRooms.length > 0 ? (
           filteredRooms.map((room) => (
             <Suspense key={room.id} fallback={<div>Loading...</div>}>
               <RoomCard

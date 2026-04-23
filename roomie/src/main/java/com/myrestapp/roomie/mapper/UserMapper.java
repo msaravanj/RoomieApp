@@ -20,6 +20,7 @@ public class UserMapper {
         dto.setProfilePictureUrl(user.getProfilePictureUrl());
         dto.setEmail(user.getEmail());
         dto.setHasAccomodation(user.isHasAccomodation());
+        dto.setRole(user.getRole());
         if (user.getLifestyleProfile() != null){
         dto.setLifestyleProfileId(user.getLifestyleProfile().getId());}
         return dto;
@@ -37,6 +38,7 @@ public class UserMapper {
         user.setProfilePictureUrl(dto.getProfilePictureUrl());
         user.setEmail(dto.getEmail());
         user.setHasAccomodation(dto.isHasAccomodation());
+        user.setRole(dto.getRole());
         if (lifestyleProfile != null){
             user.setLifestyleProfile(lifestyleProfile);
         }

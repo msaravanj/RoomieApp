@@ -52,6 +52,7 @@ public class AuthServiceImpl implements AuthService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .jwtExpirationInMs(jwtExpirationInMs)
+                .role(user.getRole())
                 .build();
     }
 
@@ -69,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role("USER")
+                .role("ROLE_USER")
                 .city(request.getCity())
                 .gender(request.getGender())
                 .yob(request.getYob())

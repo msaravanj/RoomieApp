@@ -60,6 +60,7 @@ public class HousingController {
         return ResponseEntity.ok(saved);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #theHousing.userId == authentication.principal.id")
     @DeleteMapping("/housings/{housingId}")
     public void deleteHousing(@PathVariable int housingId) {
         HousingDto tempHousing = housingService.findById(housingId);

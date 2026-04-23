@@ -76,7 +76,7 @@ public class UserController {
         userService.save(theUser);
     }
 
-    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     @DeleteMapping("/users/{userId}")
     void deleteUser(@PathVariable int userId) {
         UserDto tempUser = userService.findById(userId);

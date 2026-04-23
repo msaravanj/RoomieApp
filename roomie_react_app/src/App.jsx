@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -9,54 +9,16 @@ import Rooms from "@/pages/Rooms";
 import ChatPage from "@/pages/ChatPage";
 import ChatBotPage from "@/pages/ChatBotPage";
 import ProfilePage from "@/pages/ProfilePage";
+import AdminPage from "./pages/AdminPage";
 import { Toaster } from "@/components/ui/toaster";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-  useNavigate,
   useLocation,
 } from "react-router-dom";
-import {
-  AUTH_CHANGE_EVENT,
-  clearAuthSession,
-  getAuthExpiresAt,
-} from "@/util/auth";
-import MapPage from "./components/Map";
-
-const AuthWatcher = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const logoutTimerRef = useRef(null);
-
-  useEffect(() => {
-    const expiresAt = getAuthExpiresAt();
-
-    if (!expiresAt) return undefined;
-
-    const remainingMs = expiresAt - Date.now();
-
-    if (remainingMs <= 0) {
-      clearAuthSession();
-      navigate("/login");
-      return undefined;
-    }
-
-    logoutTimerRef.current = setTimeout(() => {
-      clearAuthSession();
-      navigate("/login");
-    }, remainingMs);
-
-    return () => {
-      if (logoutTimerRef.current) {
-        clearTimeout(logoutTimerRef.current);
-      }
-    };
-  }, [navigate, location.key]);
-
-  return null;
-};
+import { AUTH_CHANGE_EVENT, ROLE_ADMIN, getUserRole } from "@/util/auth";
 
 const LifestyleProfileWatcher = ({ authUserId, onProfileStatusChange }) => {
   const location = useLocation();
@@ -187,12 +149,15 @@ function App() {
     localStorage.getItem("userId") ? "loading" : "idle",
   );
 
+  const [userRole, setUserRole] = useState(() => getUserRole());
+
   useEffect(() => {
     const syncAuthUserId = () => {
       const nextUserId = localStorage.getItem("userId");
       setAuthUserId(nextUserId);
       setProfileStatus(nextUserId ? "loading" : "idle");
       setHousingStatus(nextUserId ? "loading" : "idle");
+      setUserRole(getUserRole());
     };
 
     window.addEventListener(AUTH_CHANGE_EVENT, syncAuthUserId);
@@ -207,7 +172,6 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster />
-      <AuthWatcher />
       <LifestyleProfileWatcher
         authUserId={authUserId}
         onProfileStatusChange={setProfileStatus}
@@ -305,6 +269,16 @@ function App() {
           path="/profile"
           element={
             !authUserId ? <Navigate to="/login" replace /> : <ProfilePage />
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            userRole === ROLE_ADMIN ? (
+              <AdminPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
         <Route

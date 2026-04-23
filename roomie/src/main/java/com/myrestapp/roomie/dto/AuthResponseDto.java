@@ -11,4 +11,5 @@ public class AuthResponseDto {
     private int userId;
     private String email;
     private int jwtExpirationInMs;
+    private String role;
 }

@@ -2,6 +2,7 @@ package com.myrestapp.roomie.jwt;
 
 import com.myrestapp.roomie.domain.User;
 import com.myrestapp.roomie.mapper.UserInfoMapper;
+import com.myrestapp.roomie.repository.UserRepository;
 import com.myrestapp.roomie.service.impl.UserServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,11 +20,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserServiceImpl userService;
+    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserServiceImpl userService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = UserInfoMapper.toEntity(userService.findByEmail(email), null);
+            User user = userRepository.findByEmail(email).orElse(null);
 
             if (jwtService.isTokenValid(token, user.getEmail())) {
 

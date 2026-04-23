@@ -12,7 +12,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { PasswordInput } from "@/components/ui/password-input";
 import styles from "./FormStyles.module.css";
 import { Toaster, toaster } from "@/components/ui/toaster";
-import { setAuthSession } from "@/util/auth";
+import { normalizeUserRole, setAuthSession } from "@/util/auth";
 import { useState } from "react";
 
 const Login = () => {
@@ -63,6 +63,7 @@ const Login = () => {
         token: data.token,
         userId: data.userId,
         expiresInMs: data.jwtExpirationInMs,
+        userRole: normalizeUserRole(data.role),
       });
 
       setTimeout(() => {

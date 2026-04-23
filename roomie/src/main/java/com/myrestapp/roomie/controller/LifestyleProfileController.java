@@ -41,7 +41,7 @@ public class LifestyleProfileController {
         return theLifestyleProfile;
     }
 
-    @PreAuthorize("#theLifestyleProfile.id == authentication.principal.lifestyleProfileId or hasRole('ADMIN')")
+    @PreAuthorize("#theLifestyleProfile.id == authentication.principal.lifestyleProfile.id or hasRole('ADMIN')")
     @PutMapping("/lifestyle-profiles")
     public void updateLifestyleProfile(@RequestBody LifestyleProfileDto theLifestyleProfile) {
         lifestyleProfileService.save(theLifestyleProfile);

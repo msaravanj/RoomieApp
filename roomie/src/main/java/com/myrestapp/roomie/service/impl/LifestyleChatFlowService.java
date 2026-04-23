@@ -56,7 +56,6 @@ public class LifestyleChatFlowService {
             //  Sljedeći korak
             session.next();
         } else {
-            
             String r = result.split("\"")[5].trim();
             throw new IllegalArgumentException(result.contains("reason") ? r : "Neispravan odgovor.");
         }
