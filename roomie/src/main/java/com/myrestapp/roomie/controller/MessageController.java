@@ -49,6 +49,7 @@ public class MessageController {
         messageService.save(theMessage);
     }
 
+    @PreAuthorize("authentication.principal.id == #theMessage.senderId")
     @PostMapping("/messages")
     public void addMessage(@RequestBody MessageDto theMessage) {
 

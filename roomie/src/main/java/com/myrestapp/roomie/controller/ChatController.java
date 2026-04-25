@@ -39,7 +39,7 @@ public class ChatController {
      * START CHAT
      * Kreira novi chat session i vraća prvo pitanje
      */
-
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/start")
     public ChatResponseDto startChat() {
 

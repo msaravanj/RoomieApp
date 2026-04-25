@@ -47,7 +47,7 @@ public class LifestyleProfileController {
         lifestyleProfileService.save(theLifestyleProfile);
     }
 
-
+    @PreAuthorize("#theLifestyleProfile.id == authentication.principal.lifestyleProfile.id or hasRole('ADMIN')")
     @PostMapping("/lifestyle-profiles")
     public LifestyleProfile addLifestyleProfile(@RequestBody LifestyleProfileDto theLifestyleProfile) {
 
@@ -56,7 +56,7 @@ public class LifestyleProfileController {
         return profile;
     }
 
-    @PreAuthorize("#lifestyleProfileId == authentication.principal.lifestyleProfileId or hasRole('ADMIN')")
+    @PreAuthorize("#theLifestyleProfile.id == authentication.principal.lifestyleProfile.id or hasRole('ADMIN')")
     @DeleteMapping("/lifestyle-profiles/{lifestyleProfileId}")
     public void deleteLifestyleProfile(@PathVariable int lifestyleProfileId) {
         LifestyleProfileDto tempLifestyleProfile = lifestyleProfileService.findById(lifestyleProfileId);

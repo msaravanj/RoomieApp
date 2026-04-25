@@ -1,12 +1,23 @@
-import { ScrollArea } from "@chakra-ui/react";
+import {
+  ScrollArea,
+  Drawer,
+  Portal,
+  Button,
+  Box,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import ConversationSelect from "./ConversationSelect";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const ScrollAreaComp = (props) => {
   const [conversationPartnerIds, setConversationPartnerIds] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [conversationPartners, setConversationPartners] = useState([]);
   const [unreadConversations, setUnreadConversations] = useState(new Set());
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // true na mobitelima i tabletima, false na širokim ekranima
+  const isMobileOrTablet = useBreakpointValue({ base: true, lg: false });
 
   // vraća User objekt s id-om partnera, koji je sugovornik u tom razgovoru
   const fetchConversationPartner = async (partnerId) => {
@@ -81,7 +92,6 @@ const ScrollAreaComp = (props) => {
       const currentUserId = Number(localStorage.getItem("userId"));
       const currentChatUserId = Number(props.id); // trenutno otvorena konverzacija
 
-      // Pronađi conversation koji se odnosi na ovu poruku
       setConversations((prevConversations) => {
         return prevConversations.map((conv) => {
           const isThisConversation =
@@ -91,7 +101,6 @@ const ScrollAreaComp = (props) => {
               conv.user2_Id === message.senderId);
 
           if (isThisConversation) {
-            // Ako je poruka primljena (senderId nije trenutni user) i nije otvorena ta konverzacija
             if (
               message.senderId !== currentUserId &&
               message.senderId !== currentChatUserId
@@ -101,7 +110,6 @@ const ScrollAreaComp = (props) => {
               );
             }
 
-            // Ažuriraj conversation sa novom porukom i vremenom
             return {
               ...conv,
               lastMessageContent: message.content,
@@ -120,7 +128,7 @@ const ScrollAreaComp = (props) => {
     };
   }, [props.id]);
 
-  // Ukloni notifikaciju kada se otvori konverzacija
+  // ukloni notifikaciju kada se otvori konverzacija
   useEffect(() => {
     if (props.id) {
       const userId = Number(props.id);
@@ -132,9 +140,21 @@ const ScrollAreaComp = (props) => {
     }
   }, [props.id]);
 
-  return (
+  const closeDrawerIfMobile = () => {
+    if (isMobileOrTablet) {
+      setIsDrawerOpen(false);
+    }
+  };
+
+  const sortedConversations = useMemo(() => {
+    return [...conversations].sort(
+      (a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated),
+    );
+  }, [conversations]);
+
+  const renderConversationList = (height = "100vh") => (
     <ScrollArea.Root
-      height="100vh"
+      height={height}
       maxW="100%"
       alignItems="center"
       border="1px solid transparent"
@@ -156,20 +176,17 @@ const ScrollAreaComp = (props) => {
         }}
       >
         <ScrollArea.Content>
-          {conversations
-            .sort((a, b) => {
-              return new Date(b.lastUpdated) - new Date(a.lastUpdated);
-            })
-            .map((conversation) => {
-              const partner = conversationPartners.find(
-                (p) =>
-                  p.id === conversation.user1_Id ||
-                  p.id === conversation.user2_Id,
-              );
-              if (!partner) return null;
-              return (
+          {sortedConversations.map((conversation) => {
+            const partner = conversationPartners.find(
+              (p) =>
+                p.id === conversation.user1_Id ||
+                p.id === conversation.user2_Id,
+            );
+            if (!partner) return null;
+
+            return (
+              <Box key={partner.id} onClick={closeDrawerIfMobile}>
                 <ConversationSelect
-                  key={partner.id}
                   photoUrl={partner.profilePictureUrl}
                   name={partner.name + " " + partner.lastName}
                   userId={partner.id}
@@ -183,11 +200,68 @@ const ScrollAreaComp = (props) => {
                     });
                   }}
                 />
-              );
-            })}
+              </Box>
+            );
+          })}
         </ScrollArea.Content>
       </ScrollArea.Viewport>
     </ScrollArea.Root>
+  );
+
+  // Široki ekrani
+  if (!isMobileOrTablet) {
+    return renderConversationList("100vh");
+  }
+
+  // mobitel i tablet: Drawer
+  return (
+    <>
+      <Button
+        size="sm"
+        variant="solid"
+        onClick={() => setIsDrawerOpen(true)}
+        mb={2}
+        px={4}
+        borderRadius="full"
+        bg="blue.600"
+        color="white"
+        fontWeight="700"
+        letterSpacing="0.2px"
+        boxShadow="sm"
+        _hover={{
+          bg: "blue.500",
+          boxShadow: "md",
+        }}
+        _active={{ bg: "blue.700", transform: "scale(0.98)" }}
+        _focusVisible={{ boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.6)" }}
+      >
+        Chats
+      </Button>
+
+      <Drawer.Root
+        open={isDrawerOpen}
+        onOpenChange={(details) => setIsDrawerOpen(details.open)}
+        placement="start"
+        closeOnInteractOutside={true}
+        closeOnEscape={true}
+      >
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content
+              maxW={{ base: "80vw", sm: "74vw", md: "66vw" }}
+              onPointerDownOutside={() => setIsDrawerOpen(false)}
+            >
+              <Drawer.Header>
+                <Drawer.Title>Chats</Drawer.Title>
+              </Drawer.Header>
+              <Drawer.CloseTrigger />
+              <Drawer.Body p={0}>{renderConversationList("100%")}</Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
+    </>
   );
 };
 

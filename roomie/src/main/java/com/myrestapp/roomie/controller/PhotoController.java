@@ -57,7 +57,7 @@ public class PhotoController {
 
     }
 
-
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(#thePhoto.housingId).userId")
     @PostMapping("/photos")
     public void addPhoto(@RequestBody PhotoDto thePhoto) {
 
@@ -65,6 +65,7 @@ public class PhotoController {
         photoService.save(thePhoto);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(photoService.findById(#photoId).housingId).userId")
     @DeleteMapping("/photos/{photoId}")
     public void deletePhoto(@PathVariable int photoId) {
         PhotoDto tempPhoto = photoService.findById(photoId);

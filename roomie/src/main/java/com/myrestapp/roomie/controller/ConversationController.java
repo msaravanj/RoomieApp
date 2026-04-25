@@ -3,6 +3,7 @@ package com.myrestapp.roomie.controller;
 import com.myrestapp.roomie.dto.ConversationDto;
 import com.myrestapp.roomie.service.ConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class ConversationController {
         this.conversationService = conversationService;
      }
 
+     @PreAuthorize("isAuthenticated()")
      @GetMapping("/conversations")
      List<ConversationDto> findAll() {
          return conversationService.findAll();

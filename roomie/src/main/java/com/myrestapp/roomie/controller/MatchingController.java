@@ -4,6 +4,7 @@ import com.myrestapp.roomie.dto.MatchResultDto;
 import com.myrestapp.roomie.service.MatchingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class MatchingController {
         matchingService = theMatchingService;
     }
 
+    @PreAuthorize("#lifestyleProfileId == authentication.principal.lifestyleProfile.id")
     @GetMapping("matchings/{lifestyleProfileId}")
     public ResponseEntity<List<MatchResultDto>> getMatches(@PathVariable Integer lifestyleProfileId) {
 

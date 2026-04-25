@@ -70,7 +70,7 @@ public class UserController {
         return theUser;
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ADMIN') or #theUser.id == authentication.principal.id")
     @PutMapping("/users")
     public void updateUser(@RequestBody UserDto theUser) {
         userService.save(theUser);
@@ -88,6 +88,7 @@ public class UserController {
         userService.deleteById(userId);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     @PutMapping("/users/{userId}/lifestyleProfile/{profileId}")
     public void updateLifestyleProfile(
             @PathVariable int userId,
