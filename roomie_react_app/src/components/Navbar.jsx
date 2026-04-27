@@ -20,10 +20,10 @@ import {
 } from "@/util/auth";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Rooms", href: "/rooms" },
-  { label: "Chat", href: "/chat" },
-  { label: "Profile", href: "/profile" },
+  { label: "Početna", href: "/" },
+  { label: "Sobe", href: "/rooms" },
+  { label: "Poruke", href: "/chat" },
+  { label: "Profil", href: "/profile" },
   { label: "Admin", href: "/admin" },
 ];
 
@@ -78,7 +78,7 @@ const Navbar = () => {
           <IconButton
             size="lg"
             variant="outline"
-            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-label={isOpen ? "Zatvori izbornik" : "Otvori izbornik"}
             display={{ base: "inline-flex", md: "none" }}
             onClick={isOpen ? onClose : onOpen}
           >
@@ -112,7 +112,7 @@ const Navbar = () => {
                   navigate("/login");
                 }}
               >
-                Logout
+                Odjava
               </Button>
             ) : (
               <Button
@@ -122,7 +122,7 @@ const Navbar = () => {
                 as={NavLink}
                 to="/login"
               >
-                Login
+                Prijava
               </Button>
             )}
           </HStack>
@@ -158,7 +158,7 @@ const Navbar = () => {
                     navigate("/login");
                   }}
                 >
-                  Logout
+                  Odjava
                 </Button>
               ) : (
                 <Button
@@ -168,7 +168,7 @@ const Navbar = () => {
                   as={NavLink}
                   to="/login"
                 >
-                  Login
+                  Prijava
                 </Button>
               )}
             </Stack>

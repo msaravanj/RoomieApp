@@ -1,45 +1,83 @@
 import Banner from "@/components/Banner";
-import { Heading, Text, Box } from "@chakra-ui/react";
+import { Heading, Text, Box, Container } from "@chakra-ui/react";
 import styles from "./Home.module.css";
 
 const Home = () => {
   return (
-    <div>
+    <Box>
       <Banner />
-      <Box id="textBlock" className={styles.textBlock}>
-        <Heading as="h2" fontSize="3xl" className={styles.heading}>
-          Find a roommate you actually click with
-        </Heading>
-        <Text
-          fontSize="lg"
-          mx="auto"
-          maxW="38rem"
-          mb={16}
-          className={styles.text}
+
+      <Container
+        maxW="1200px"
+        py={{ base: "8", md: "16" }}
+        px={{ base: "4", md: "8" }}
+      >
+        <Box
+          id="textBlock"
+          bg="transparent"
+          p={{ base: "6", md: "12" }}
+          borderRadius="lg"
+          mb={{ base: "12", md: "20" }}
         >
-          Finding a roommate isn’t just about rent — it’s about lifestyle,
-          habits, and feeling at home. Roomie helps you connect with people who
-          truly match your way of living. Our smart lifestyle-based matching
-          makes sure you don’t just share a space, but also a vibe.
-        </Text>
-      </Box>
-      <Box id="textBlock2" className={styles.textBlock}>
-        <Heading as="h2" fontSize="3xl" className={styles.heading}>
-          Start your match today
-        </Heading>
-        <Text
-          fontSize="lg"
-          mx="auto"
-          maxW="38rem"
-          mb={16}
-          className={styles.text}
+          <Heading
+            as="h2"
+            fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+            textAlign="center"
+            mb="6"
+            fontWeight="700"
+            color="white"
+          >
+            Pronađi cimera s kojim se zaista razumiješ
+          </Heading>
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            textAlign="center"
+            maxW="600px"
+            mx="auto"
+            lineHeight="1.8"
+            color="gray.200"
+          >
+            Pronalaženje cimera nije samo pitanje cijene – radi se o životnom
+            stilu, navikama i osjećaju doma. Roomie ti pomaže da se povežeš s
+            ljudima koji se stvarno podudaraju s tvojim načinom života. Naš
+            pametan sustav podudaranja na temelju životnog stila osigurava da ne
+            dijeliš samo prostor, već i energiju.
+          </Text>
+        </Box>
+
+        <Box
+          id="textBlock2"
+          bg="transparent"
+          p={{ base: "6", md: "12" }}
+          borderRadius="lg"
+          borderLeft="none"
         >
-          Create your profile, complete your lifestyle chat, and discover
-          roommates who fit you — not just your budget. Sign up now and take the
-          first step toward a better shared living experience.
-        </Text>
-      </Box>
-    </div>
+          <Heading
+            as="h2"
+            fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+            textAlign="center"
+            mb="6"
+            fontWeight="700"
+            color="white"
+          >
+            Počni s podudaranjem još danas
+          </Heading>
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            textAlign="center"
+            maxW="600px"
+            mx="auto"
+            lineHeight="1.8"
+            color="gray.200"
+          >
+            Kreiraj svoj profil, ispuni razgovor o životnom stilu, i otkrij
+            cimere koji se uklapaju uz tebe - ne samo u tvoj budžet. Registriraj
+            se sada i napravi prvi korak prema boljoj zajedničkoj iskustvu
+            života.
+          </Text>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

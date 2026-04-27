@@ -151,7 +151,7 @@ const OverlayCard = ({
                   p={{ base: 4, md: 5 }}
                 >
                   <Heading size="md" mb="4">
-                    About this place
+                    O ovoj nekretnini
                   </Heading>
                   <Flex direction="column" gap="3">
                     {room?.address && room?.city && (
@@ -171,38 +171,38 @@ const OverlayCard = ({
                     {room?.capacity && (
                       <HStack gap="2" align="center">
                         <LuUsers />
-                        <Text>{room.capacity} roommates capacity</Text>
+                        <Text>{room.capacity} cimera kapacitet</Text>
                       </HStack>
                     )}
                     {room?.pricePerMonth && (
                       <HStack gap="2" align="center">
                         <LuReceiptEuro />
-                        <Text>{room.pricePerMonth}€ each</Text>
+                        <Text>{room.pricePerMonth}€ po osobi</Text>
                       </HStack>
                     )}
                     {room?.numberOfRooms && (
                       <HStack gap="2" align="center">
                         <MdOutlineBedroomParent />
-                        <Text>{room.numberOfRooms} bedroom(s)</Text>
+                        <Text>{room.numberOfRooms} soba/sobe</Text>
                       </HStack>
                     )}
                     {room?.sizeM2 && (
                       <HStack gap="2" align="center">
                         <LuHouse />
-                        <Text>{room.sizeM2} m² apartment size</Text>
+                        <Text>{room.sizeM2} m² veličina apartmana</Text>
                       </HStack>
                     )}
                     {room?.isPetFriendly && (
                       <HStack gap="2" align="center">
                         <MdOutlinePets />
-                        <Text>Pet friendly</Text>
+                        <Text>Dozvoljeni ljubimci</Text>
                       </HStack>
                     )}
                     {room?.availableFrom && (
                       <HStack gap="2" align="center">
                         <LuCalendar />
                         <Text>
-                          Available from:{" "}
+                          Dostupno od:{" "}
                           {new Date(room.availableFrom).toLocaleDateString()}
                           {room?.availableTo &&
                             ` - ${new Date(room.availableTo).toLocaleDateString()}`}
@@ -219,7 +219,7 @@ const OverlayCard = ({
                   p={{ base: 4, md: 5 }}
                 >
                   <Heading size="md" mb="4">
-                    Roommate information
+                    Informacije o cimeru
                   </Heading>
                   {user && (
                     <Flex direction="column" justifyContent="center" gap="4">
@@ -253,7 +253,7 @@ const OverlayCard = ({
                         matching?.score !== null && (
                           <HStack gap="2" align="center">
                             <Text fontWeight="medium" color="green.500">
-                              Roomie match:
+                              Roomie podudaranje:
                             </Text>
                             <Text fontWeight="bold" color="green.500">
                               {formatMatchingScore(matching.score)}
@@ -269,9 +269,7 @@ const OverlayCard = ({
                           <HStack gap="2" align="center">
                             <LuCigarette />
                             <Text>
-                              {lifestyleProfile.isSmoker
-                                ? "Smoker"
-                                : "Non-smoker"}
+                              {lifestyleProfile.isSmoker ? "Pušač" : "Nepušač"}
                             </Text>
                           </HStack>
                           <HStack gap="2" align="center">
@@ -288,7 +286,7 @@ const OverlayCard = ({
                         as={Link}
                         to={`/chat?id=${user.id}`}
                       >
-                        <LuMessageCircleMore /> Send message
+                        <LuMessageCircleMore /> Pošalji poruku
                       </Button>
                     </Flex>
                   )}
@@ -315,7 +313,7 @@ const OverlayCard = ({
                 >
                   <Image
                     src={selectedImage}
-                    alt="Enlarged profile photo"
+                    alt="Uvećana profilna fotografija"
                     maxW="90vw"
                     maxH="85vh"
                     borderRadius="lg"

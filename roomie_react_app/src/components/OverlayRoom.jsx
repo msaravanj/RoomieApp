@@ -283,11 +283,11 @@ export const OverlayRoom = ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to delete room");
+        throw new Error(errorText || "Nije uspjelo obrisati sobu");
       }
 
       toaster.create({
-        description: "Room deleted successfully",
+        description: "Soba obrisana uspješno",
         type: "success",
       });
 
@@ -338,7 +338,7 @@ export const OverlayRoom = ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to delete photo");
+        throw new Error(errorText || "Nije uspjelo obrisati fotografiju");
       }
 
       setPhotos((prev) => prev.filter((photo) => photo?.id !== photoId));
@@ -348,7 +348,7 @@ export const OverlayRoom = ({
       }
 
       toaster.create({
-        description: "Photo deleted successfully",
+        description: "Fotografija obrisana uspješno",
         type: "success",
       });
 
@@ -473,7 +473,7 @@ export const OverlayRoom = ({
                   fontSize={{ base: "2xl", md: "3xl" }}
                   fontWeight="bold"
                 >
-                  Room details
+                  Detalji o sobi
                 </Dialog.Title>
 
                 <Flex direction="column" gap="5" marginTop="6">
@@ -498,7 +498,7 @@ export const OverlayRoom = ({
 
                   <Box {...infoCardStyles}>
                     <Heading size="md" mb="4">
-                      Basic information
+                      Osnovne informacije
                     </Heading>
                     <VStack align="stretch" gap="3">
                       {!isEditMode ? (
@@ -506,49 +506,48 @@ export const OverlayRoom = ({
                           <HStack gap="2">
                             <LuMapPin />
                             <Text>
-                              Address: {formatValue(currentRoom?.address)},{" "}
+                              Adresa: {formatValue(currentRoom?.address)},{" "}
                               {formatValue(currentRoom?.city)}
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <LuUsers />
                             <Text>
-                              Capacity: {formatValue(currentRoom?.capacity)}
+                              Kapacitet: {formatValue(currentRoom?.capacity)}
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <LuReceiptEuro />
                             <Text>
-                              Price per month:{" "}
+                              Cijena po mjesecu:{" "}
                               {formatValue(currentRoom?.pricePerMonth)} EUR
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <MdOutlineBedroomParent />
                             <Text>
-                              Number of rooms:{" "}
+                              Broj soba:{" "}
                               {formatValue(currentRoom?.numberOfRooms)}
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <LuHouse />
                             <Text>
-                              Size: {formatValue(currentRoom?.sizeM2)} m2
+                              Veličina: {formatValue(currentRoom?.sizeM2)} m2
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <MdOutlinePets />
                             <Text>
-                              Pet friendly:{" "}
+                              Dozvoljeni ljubimci:{" "}
                               {formatValue(currentRoom?.isPetFriendly)}
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <LuCalendar />
                             <Text>
-                              Available:{" "}
-                              {formatDate(currentRoom?.availableFrom)} -{" "}
-                              {formatDate(currentRoom?.availableTo)}
+                              Dostupno: {formatDate(currentRoom?.availableFrom)}{" "}
+                              - {formatDate(currentRoom?.availableTo)}
                             </Text>
                           </HStack>
                         </>
@@ -556,19 +555,19 @@ export const OverlayRoom = ({
                         <>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Name
+                              Naziv
                             </Text>
                             <Input
                               value={roomData.name}
                               onChange={(event) =>
                                 handleInputChange("name", event.target.value)
                               }
-                              placeholder="Room name"
+                              placeholder="Naziv sobe"
                             />
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Description
+                              Opis
                             </Text>
                             <Textarea
                               value={roomData.description}
@@ -583,31 +582,31 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Address
+                              Adresa
                             </Text>
                             <Input
                               value={roomData.address}
                               onChange={(event) =>
                                 handleInputChange("address", event.target.value)
                               }
-                              placeholder="Address"
+                              placeholder="Adresa"
                             />
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              City
+                              Grad
                             </Text>
                             <Input
                               value={roomData.city}
                               onChange={(event) =>
                                 handleInputChange("city", event.target.value)
                               }
-                              placeholder="City"
+                              placeholder="Grad"
                             />
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Capacity
+                              Kapacitet
                             </Text>
                             <Input
                               type="number"
@@ -623,7 +622,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Price per month (EUR)
+                              Cijena po mjesecu (EUR)
                             </Text>
                             <Input
                               type="number"
@@ -639,7 +638,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Number of rooms
+                              Broj soba
                             </Text>
                             <Input
                               type="number"
@@ -655,7 +654,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Size (m2)
+                              Veličina (m2)
                             </Text>
                             <Input
                               type="number"
@@ -668,7 +667,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Available from
+                              Dostupno od
                             </Text>
                             <Input
                               type="date"
@@ -683,7 +682,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Available to
+                              Dostupno do
                             </Text>
                             <Input
                               type="date"
@@ -698,7 +697,7 @@ export const OverlayRoom = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Pet friendly
+                              Dozvoljeni ljubimci
                             </Text>
                             <NativeSelect.Root>
                               <NativeSelect.Field
@@ -712,8 +711,8 @@ export const OverlayRoom = ({
                                   )
                                 }
                               >
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
+                                <option value="true">Da</option>
+                                <option value="false">Ne</option>
                               </NativeSelect.Field>
                             </NativeSelect.Root>
                           </Box>
@@ -727,7 +726,7 @@ export const OverlayRoom = ({
                           variant="outline"
                           onClick={() => setIsEditMode(true)}
                         >
-                          <LuPencil /> Edit
+                          <LuPencil /> Uredi
                         </Button>
                       ) : (
                         <HStack gap="3">
@@ -736,10 +735,10 @@ export const OverlayRoom = ({
                             onClick={handleSaveRoom}
                             loading={isSaving}
                           >
-                            <LuSave /> Save
+                            <LuSave /> Spremi
                           </Button>
                           <Button variant="outline" onClick={handleCancelEdit}>
-                            <LuX /> Cancel
+                            <LuX /> Otkaži
                           </Button>
                         </HStack>
                       )}
@@ -748,7 +747,7 @@ export const OverlayRoom = ({
 
                   <Box {...infoCardStyles}>
                     <Heading size="md" mb="4">
-                      Owner information
+                      Informacije o vlasniku
                     </Heading>
                     {owner ? (
                       <Flex
@@ -791,7 +790,7 @@ export const OverlayRoom = ({
                       <HStack gap="2">
                         <LuUser />
                         <Text color="fg.muted">
-                          Owner details are not available.
+                          Detalji vlasnika nisu dostupni.
                         </Text>
                       </HStack>
                     )}
@@ -800,7 +799,7 @@ export const OverlayRoom = ({
                   {photos.length > 0 && (
                     <Box {...infoCardStyles}>
                       <Heading size="md" mb="4">
-                        Photos
+                        Fotografije
                       </Heading>
                       <Flex gap="3" wrap="wrap">
                         {photos.map((photo) => (
@@ -834,7 +833,7 @@ export const OverlayRoom = ({
                               }}
                               disabled={!photo?.id}
                             >
-                              <LuTrash /> Delete
+                              <LuTrash /> Obriši
                             </Button>
                           </Box>
                         ))}
@@ -857,7 +856,7 @@ export const OverlayRoom = ({
                   >
                     <Image
                       src={selectedImage}
-                      alt="Enlarged image"
+                      alt="Uvećana fotografija"
                       maxW="90vw"
                       maxH="85vh"
                       borderRadius="lg"
@@ -874,7 +873,7 @@ export const OverlayRoom = ({
                       onClick={() => setIsConfirmOpen(true)}
                       loading={isDeleting}
                     >
-                      <LuTrash /> Delete room
+                      <LuTrash /> Obriši sobu
                     </Button>
                   </Flex>
                 )}
@@ -897,12 +896,12 @@ export const OverlayRoom = ({
           <Dialog.Positioner>
             <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>Delete room</Dialog.Title>
+                <Dialog.Title>Obriši sobu</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 <Text>
-                  Are you sure you want to delete {currentRoom?.name || "this"}{" "}
-                  room?
+                  Jesu li sigurni da želite obrisati{" "}
+                  {currentRoom?.name || "ovu"} sobu?
                 </Text>
               </Dialog.Body>
               <Dialog.Footer gap="3">
@@ -911,14 +910,14 @@ export const OverlayRoom = ({
                   onClick={() => setIsConfirmOpen(false)}
                   disabled={isDeleting}
                 >
-                  Cancel
+                  Otkaži
                 </Button>
                 <Button
                   colorPalette="red"
                   onClick={confirmDeleteRoom}
                   loading={isDeleting}
                 >
-                  Delete
+                  Obriši
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>
@@ -941,10 +940,10 @@ export const OverlayRoom = ({
           <Dialog.Positioner>
             <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>Delete photo</Dialog.Title>
+                <Dialog.Title>Obriši fotografiju</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
-                <Text>Are you sure you want to delete this photo?</Text>
+                <Text>Jesu li sigurni da želite obrisati ovu fotografiju?</Text>
               </Dialog.Body>
               <Dialog.Footer gap="3">
                 <Button
@@ -952,14 +951,14 @@ export const OverlayRoom = ({
                   onClick={() => setIsPhotoConfirmOpen(false)}
                   disabled={isPhotoDeleting}
                 >
-                  Cancel
+                  Otkaži
                 </Button>
                 <Button
                   colorPalette="red"
                   onClick={confirmDeletePhoto}
                   loading={isPhotoDeleting}
                 >
-                  Delete
+                  Obriši
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>

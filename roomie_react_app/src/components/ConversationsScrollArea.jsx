@@ -5,6 +5,10 @@ import {
   Button,
   Box,
   useBreakpointValue,
+  Input,
+  Separator,
+  Text,
+  Stack,
 } from "@chakra-ui/react";
 import ConversationSelect from "./ConversationSelect";
 import React, { useEffect, useMemo, useState } from "react";
@@ -13,6 +17,8 @@ const ScrollAreaComp = (props) => {
   const [conversationPartnerIds, setConversationPartnerIds] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [conversationPartners, setConversationPartners] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [unreadConversations, setUnreadConversations] = useState(new Set());
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -85,6 +91,25 @@ const ScrollAreaComp = (props) => {
     };
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    fetch("http://localhost:8080/api/users", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAllUsers(Array.isArray(data) ? data : []);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch all users: ", error);
+      });
+  }, []);
+
   // Osluškuj nove poruke i ažuriraj conversations state
   useEffect(() => {
     const handleNewMessage = (event) => {
@@ -152,60 +177,160 @@ const ScrollAreaComp = (props) => {
     );
   }, [conversations]);
 
+  const searchResults = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    if (!query) return [];
+
+    const conversationPartnerIdsSet = new Set(
+      conversationPartnerIds.map(Number),
+    );
+    const currentUserId = Number(localStorage.getItem("userId"));
+
+    return allUsers
+      .filter((user) => user.id !== currentUserId)
+      .filter((user) => {
+        const fullName = `${user.name || ""} ${user.lastName || ""}`
+          .trim()
+          .toLowerCase();
+        return fullName.includes(query);
+      })
+      .sort((a, b) => {
+        const aIsExistingConversation = conversationPartnerIdsSet.has(a.id);
+        const bIsExistingConversation = conversationPartnerIdsSet.has(b.id);
+
+        if (aIsExistingConversation !== bIsExistingConversation) {
+          return aIsExistingConversation ? -1 : 1;
+        }
+
+        const aName = `${a.name || ""} ${a.lastName || ""}`.toLowerCase();
+        const bName = `${b.name || ""} ${b.lastName || ""}`.toLowerCase();
+        return aName.localeCompare(bName);
+      });
+  }, [allUsers, searchTerm, conversationPartnerIds]);
+
+  const renderUserResult = (user) => {
+    const hasExistingConversation = conversationPartnerIds.includes(user.id);
+
+    return (
+      <Box key={user.id} onClick={closeDrawerIfMobile}>
+        <ConversationSelect
+          photoUrl={user.profilePictureUrl}
+          name={user.name + " " + user.lastName}
+          userId={user.id}
+          lastMessage={
+            hasExistingConversation ? "Postojeći razgovor" : "Novi razgovor"
+          }
+          hasUnread={unreadConversations.has(user.id)}
+          onRead={() => {
+            setUnreadConversations((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(user.id);
+              return newSet;
+            });
+          }}
+        />
+      </Box>
+    );
+  };
+
   const renderConversationList = (height = "100vh") => (
-    <ScrollArea.Root
+    <Box
       height={height}
       maxW="100%"
-      alignItems="center"
       border="1px solid transparent"
       borderColor="gray.700"
     >
-      <ScrollArea.Viewport
-        css={{
-          "--scroll-shadow-size": "4rem",
-          maskImage:
-            "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-          "&[data-at-top]": {
-            maskImage:
-              "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-          },
-          "&[data-at-bottom]": {
-            maskImage:
-              "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-          },
-        }}
-      >
-        <ScrollArea.Content>
-          {sortedConversations.map((conversation) => {
-            const partner = conversationPartners.find(
-              (p) =>
-                p.id === conversation.user1_Id ||
-                p.id === conversation.user2_Id,
-            );
-            if (!partner) return null;
+      <Box p="4" pb="3">
+        <Input
+          borderRadius="full"
+          placeholder="Pretraži korisnike po imenu i prezimenu..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Box>
 
-            return (
-              <Box key={partner.id} onClick={closeDrawerIfMobile}>
-                <ConversationSelect
-                  photoUrl={partner.profilePictureUrl}
-                  name={partner.name + " " + partner.lastName}
-                  userId={partner.id}
-                  lastMessage={conversation.lastMessageContent}
-                  hasUnread={unreadConversations.has(partner.id)}
-                  onRead={() => {
-                    setUnreadConversations((prev) => {
-                      const newSet = new Set(prev);
-                      newSet.delete(partner.id);
-                      return newSet;
-                    });
-                  }}
-                />
-              </Box>
-            );
-          })}
-        </ScrollArea.Content>
-      </ScrollArea.Viewport>
-    </ScrollArea.Root>
+      <ScrollArea.Root
+        height={`calc(${height} - 72px)`}
+        maxW="100%"
+        alignItems="center"
+      >
+        <ScrollArea.Viewport
+          css={{
+            "--scroll-shadow-size": "4rem",
+            maskImage:
+              "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+            "&[data-at-top]": {
+              maskImage:
+                "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+            },
+            "&[data-at-bottom]": {
+              maskImage:
+                "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+            },
+          }}
+        >
+          <ScrollArea.Content>
+            <Stack gap="2" pb="2">
+              {searchTerm.trim() && (
+                <>
+                  <Text
+                    px="4"
+                    pt="3"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="fg.muted"
+                  >
+                    Rezultati pretrage
+                  </Text>
+                  {searchResults.length > 0 ? (
+                    searchResults.map((user) => renderUserResult(user))
+                  ) : (
+                    <Text px="4" pb="2" color="fg.muted" fontSize="sm">
+                      Nema korisnika za uneseni pojam.
+                    </Text>
+                  )}
+                </>
+              )}
+
+              {searchTerm.trim() && sortedConversations.length > 0 && (
+                <Box px="4" pt="2" pb="1">
+                  <Separator borderColor="gray.600" />
+                </Box>
+              )}
+
+              {sortedConversations.map((conversation) => {
+                const partner = conversationPartners.find(
+                  (p) =>
+                    p.id === conversation.user1_Id ||
+                    p.id === conversation.user2_Id,
+                );
+                if (!partner) return null;
+
+                return (
+                  <Box key={partner.id} onClick={closeDrawerIfMobile}>
+                    <ConversationSelect
+                      photoUrl={partner.profilePictureUrl}
+                      name={partner.name + " " + partner.lastName}
+                      userId={partner.id}
+                      lastMessage={conversation.lastMessageContent}
+                      hasUnread={unreadConversations.has(partner.id)}
+                      onRead={() => {
+                        setUnreadConversations((prev) => {
+                          const newSet = new Set(prev);
+                          newSet.delete(partner.id);
+                          return newSet;
+                        });
+                      }}
+                    />
+                  </Box>
+                );
+              })}
+            </Stack>
+          </ScrollArea.Content>
+        </ScrollArea.Viewport>
+      </ScrollArea.Root>
+    </Box>
   );
 
   // Široki ekrani
@@ -235,7 +360,7 @@ const ScrollAreaComp = (props) => {
         _active={{ bg: "blue.700", transform: "scale(0.98)" }}
         _focusVisible={{ boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.6)" }}
       >
-        Chats
+        Poruke
       </Button>
 
       <Drawer.Root
@@ -248,12 +373,9 @@ const ScrollAreaComp = (props) => {
         <Portal>
           <Drawer.Backdrop />
           <Drawer.Positioner>
-            <Drawer.Content
-              maxW={{ base: "80vw", sm: "74vw", md: "66vw" }}
-              onPointerDownOutside={() => setIsDrawerOpen(false)}
-            >
+            <Drawer.Content maxW={{ base: "80vw", sm: "74vw", md: "66vw" }}>
               <Drawer.Header>
-                <Drawer.Title>Chats</Drawer.Title>
+                <Drawer.Title>Poruke</Drawer.Title>
               </Drawer.Header>
               <Drawer.CloseTrigger />
               <Drawer.Body p={0}>{renderConversationList("100%")}</Drawer.Body>

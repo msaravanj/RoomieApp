@@ -33,8 +33,11 @@ const Rooms = () => {
       createListCollection({
         items: [
           { label: "-", value: "none" },
-          { label: "Price (low to high)", value: "priceAsc" },
-          { label: "Roomie match (high to low)", value: "matchingDesc" },
+          { label: "Cijena (od nižeg ka većem)", value: "priceAsc" },
+          {
+            label: "Roomie podudaranje (od većeg ka nižem)",
+            value: "matchingDesc",
+          },
         ],
       }),
     [],
@@ -375,7 +378,7 @@ const Rooms = () => {
             <p className={styles.filterLabel}>Search</p>
             <Input
               className={styles.searchInput}
-              placeholder="Search by name, location, or description..."
+              placeholder="Pretraži po nazivu, lokaciji ili opisu..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
@@ -383,8 +386,8 @@ const Rooms = () => {
 
           <Box className={styles.filterSection}>
             <div className={styles.filterRow}>
-              <p className={styles.filterLabel}>Max Price</p>
-              <p className={styles.valueText}>up to {maxPrice}€</p>
+              <p className={styles.filterLabel}>Maksimalna cijena</p>
+              <p className={styles.valueText}>do {maxPrice}€</p>
             </div>
             <input
               className={styles.rangeInput}
@@ -399,7 +402,7 @@ const Rooms = () => {
 
           <Box className={styles.filterSection}>
             <div className={styles.filterRow}>
-              <p className={styles.filterLabel}>Max Distance</p>
+              <p className={styles.filterLabel}>Maksimalna udaljenost</p>
               <p className={styles.valueText}>{maxDistance} km</p>
             </div>
             <input
@@ -413,41 +416,41 @@ const Rooms = () => {
             />
             {userLocation && (
               <p className={styles.locationText}>
-                Using location: {userLocation[0].toFixed(3)},{" "}
+                Korištena lokacija: {userLocation[0].toFixed(3)},{" "}
                 {userLocation[1].toFixed(3)}
               </p>
             )}
           </Box>
 
           <Box className={styles.filterSection}>
-            <p className={styles.filterLabel}>Smoking Preference</p>
+            <p className={styles.filterLabel}>Preferencija pušenja</p>
             <div className={styles.smokingButtons}>
               <button
                 type="button"
                 className={`${styles.smokingButton} ${smokingFilter === "" ? styles.smokingButtonActive : ""}`}
                 onClick={() => setSmokingFilter("")}
               >
-                Any
+                Bilo koja
               </button>
               <button
                 type="button"
                 className={`${styles.smokingButton} ${smokingFilter === "no" ? styles.smokingButtonActive : ""}`}
                 onClick={() => setSmokingFilter("no")}
               >
-                Non-smoker only
+                Samo nepušači
               </button>
               <button
                 type="button"
                 className={`${styles.smokingButton} ${smokingFilter === "yes" ? styles.smokingButtonActive : ""}`}
                 onClick={() => setSmokingFilter("yes")}
               >
-                Smoker
+                Pušač
               </button>
             </div>
           </Box>
 
           <Box className={styles.filterSection}>
-            <p className={styles.filterLabel}>Sort by:</p>
+            <p className={styles.filterLabel}>Sortiraj po:</p>
             <Select.Root
               collection={sortOptions}
               value={[sortBy]}
@@ -483,13 +486,13 @@ const Rooms = () => {
             className={styles.locationButton}
             onClick={openLocationPicker}
           >
-            Select preferred location on map
+            Odaberi preferiranu lokaciju na karti
           </button>
         </div>
       </Box>
 
       <p className={styles.resultsInfo}>
-        Showing {filteredRooms.length} of {rooms.length} rooms
+        Prikazujem {filteredRooms.length} od {rooms.length} soba
       </p>
 
       <Flex className={styles.roomsGrid}>
@@ -508,11 +511,11 @@ const Rooms = () => {
             backdropFilter="blur(14px)"
           >
             <Spinner size="xl" color="cyan.300" />
-            <Text color="whiteAlpha.800">Loading rooms...</Text>
+            <Text color="whiteAlpha.800">Učitavanje soba...</Text>
           </Flex>
         ) : filteredRooms.length > 0 ? (
           filteredRooms.map((room) => (
-            <Suspense key={room.id} fallback={<div>Loading...</div>}>
+            <Suspense key={room.id} fallback={<div>Učitavanje...</div>}>
               <RoomCard
                 room={room}
                 key={room.id}
@@ -531,7 +534,9 @@ const Rooms = () => {
           ))
         ) : (
           <Box className={styles.emptyState}>
-            <p className={styles.emptyText}>No rooms match your filters.</p>
+            <p className={styles.emptyText}>
+              Nema soba koje odgovaraju tvojim filterima.
+            </p>
           </Box>
         )}
       </Flex>

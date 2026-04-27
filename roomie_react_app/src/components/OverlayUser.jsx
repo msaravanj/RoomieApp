@@ -58,7 +58,7 @@ const formatValue = (value) => {
   }
 
   if (typeof value === "boolean") {
-    return value ? "Yes" : "No";
+    return value ? "Da" : "Ne";
   }
 
   return String(value);
@@ -447,7 +447,7 @@ export const OverlayUser = ({
                   fontSize={{ base: "2xl", md: "3xl" }}
                   fontWeight="bold"
                 >
-                  User details
+                  Detalji korisnika
                 </Dialog.Title>
 
                 <Flex direction="column" gap="5" marginTop="6">
@@ -494,11 +494,11 @@ export const OverlayUser = ({
                               onClick={handleRemoveAvatarImage}
                               disabled={!profileData?.profilePictureUrl}
                             >
-                              Remove photo
+                              Ukloni fotografiju
                             </Button>
                             {avatarUploading && (
                               <Text fontSize="sm" color="fg.muted">
-                                Uploading avatar...
+                                Učitavanje profilne slike...
                               </Text>
                             )}
                           </VStack>
@@ -523,7 +523,7 @@ export const OverlayUser = ({
                               onChange={(event) =>
                                 handleInputChange("name", event.target.value)
                               }
-                              placeholder="First name"
+                              placeholder="Ime"
                             />
                             <Input
                               value={profileData.lastName}
@@ -533,7 +533,7 @@ export const OverlayUser = ({
                                   event.target.value,
                                 )
                               }
-                              placeholder="Last name"
+                              placeholder="Prezime"
                             />
                           </VStack>
                         )}
@@ -554,7 +554,7 @@ export const OverlayUser = ({
 
                   <Box {...infoCardStyles}>
                     <Heading size="md" mb="4">
-                      Basic information
+                      Osnovne informacije
                     </Heading>
                     <VStack align="stretch" gap="3">
                       {!isEditMode ? (
@@ -567,18 +567,18 @@ export const OverlayUser = ({
                           </HStack>
                           <HStack gap="2">
                             <LuMapPin />
-                            <Text>City: {formatValue(currentUser?.city)}</Text>
+                            <Text>Grad: {formatValue(currentUser?.city)}</Text>
                           </HStack>
                           <HStack gap="2">
                             <LuUserRound />
                             <Text>
-                              Gender: {formatValue(currentUser?.gender)}
+                              Spol: {formatValue(currentUser?.gender)}
                             </Text>
                           </HStack>
                           <HStack gap="2">
                             <LuUser />
                             <Text>
-                              Role:{" "}
+                              Uloga:{" "}
                               {formatValue(
                                 normalizeUserRole(currentUser?.role),
                               )}
@@ -587,13 +587,13 @@ export const OverlayUser = ({
                           <HStack gap="2">
                             <LuUser />
                             <Text>
-                              Year of birth: {formatValue(currentUser?.yob)}
+                              Godina rođenja: {formatValue(currentUser?.yob)}
                             </Text>
                           </HStack>
                           {currentUser?.description && (
                             <Box>
                               <Text fontWeight="medium" mb="1">
-                                Description
+                                Opis
                               </Text>
                               <Text color="fg.muted" lineHeight="tall">
                                 {currentUser?.description}
@@ -617,19 +617,19 @@ export const OverlayUser = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              City
+                              Grad
                             </Text>
                             <Input
                               value={profileData.city}
                               onChange={(event) =>
                                 handleInputChange("city", event.target.value)
                               }
-                              placeholder="City"
+                              placeholder="Grad"
                             />
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Gender
+                              Spol
                             </Text>
                             <NativeSelect.Root>
                               <NativeSelect.Field
@@ -641,15 +641,15 @@ export const OverlayUser = ({
                                   )
                                 }
                               >
-                                <option value="">Select gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                                <option value="">Odaberi spol</option>
+                                <option value="Muško">Muško</option>
+                                <option value="Žensko">Žensko</option>
                               </NativeSelect.Field>
                             </NativeSelect.Root>
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Role
+                              Uloga
                             </Text>
                             <NativeSelect.Root>
                               <NativeSelect.Field
@@ -668,7 +668,7 @@ export const OverlayUser = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Year of birth
+                              Godina rođenja
                             </Text>
                             <Input
                               type="number"
@@ -681,7 +681,7 @@ export const OverlayUser = ({
                           </Box>
                           <Box>
                             <Text fontSize="sm" color="fg.muted" mb="1">
-                              Description
+                              Opis
                             </Text>
                             <Textarea
                               value={profileData.description}
@@ -691,7 +691,7 @@ export const OverlayUser = ({
                                   event.target.value,
                                 )
                               }
-                              placeholder="User description"
+                              placeholder="Opis korisnika"
                               minH="120px"
                             />
                           </Box>
@@ -705,7 +705,7 @@ export const OverlayUser = ({
                           variant="outline"
                           onClick={() => setIsEditMode(true)}
                         >
-                          <LuPencil /> Edit
+                          <LuPencil /> Uredi
                         </Button>
                       ) : (
                         <HStack gap="3">
@@ -714,10 +714,10 @@ export const OverlayUser = ({
                             onClick={handleSaveUser}
                             loading={isSaving}
                           >
-                            <LuSave /> Save
+                            <LuSave /> Spremi
                           </Button>
                           <Button variant="outline" onClick={handleCancelEdit}>
-                            <LuX /> Cancel
+                            <LuX /> Otkaži
                           </Button>
                         </HStack>
                       )}
@@ -726,7 +726,7 @@ export const OverlayUser = ({
 
                   <Box {...infoCardStyles}>
                     <Heading size="md" mb="4">
-                      Lifestyle profile
+                      Profil životnog stila
                     </Heading>
                     {lifestyleProfile ? (
                       <VStack align="stretch" gap="3">
@@ -735,70 +735,70 @@ export const OverlayUser = ({
                             <HStack gap="2">
                               <LuCigarette />
                               <Text>
-                                Smoking:{" "}
+                                Pušenje:{" "}
                                 {lifestyleProfile.isSmoker
-                                  ? "Smoker"
-                                  : "Non-smoker"}
+                                  ? "Pušač"
+                                  : "Nepušač"}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <GiCardRandom />
                               <Text>
-                                Hobbies: {formatValue(lifestyleProfile.hobbies)}
+                                Hobiji: {formatValue(lifestyleProfile.hobbies)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <MdOutlinePets />
                               <Text>
-                                Has pets:{" "}
+                                Ima ljubimce:{" "}
                                 {formatValue(lifestyleProfile.hasPets)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <LuCalendar />
                               <Text>
-                                Bed time:{" "}
+                                Vrijeme spavanja:{" "}
                                 {formatValue(lifestyleProfile.bedTime)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <LuCalendar />
                               <Text>
-                                Wake up time:{" "}
+                                Vrijeme buđenja:{" "}
                                 {formatValue(lifestyleProfile.wakeUpTime)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <MdCleaningServices />
                               <Text>
-                                Cleanliness:{" "}
+                                Čistoća:{" "}
                                 {formatValue(lifestyleProfile.cleanliness)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <LuUsers />
                               <Text>
-                                Sociality:{" "}
+                                Društvenost:{" "}
                                 {formatValue(lifestyleProfile.sociality)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <LuBriefcaseBusiness />
                               <Text>
-                                Work schedule:{" "}
+                                Radni raspored:{" "}
                                 {formatValue(lifestyleProfile.workSchedule)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <MdOutlineRestaurant />
                               <Text>
-                                Nutrition:{" "}
+                                Prehrana:{" "}
                                 {formatValue(lifestyleProfile.nutrition)}
                               </Text>
                             </HStack>
                             <HStack gap="2">
                               <Text fontWeight="medium">
-                                Lifestyle profile ID:
+                                ID profila životnog stila:
                               </Text>
                               <Text>
                                 {formatValue(currentUser?.lifestyleProfileId)}
@@ -815,7 +815,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <LuCigarette />
-                                <Text>Smoking</Text>
+                                <Text>Pušenje</Text>
                               </HStack>
                               <NativeSelect.Root>
                                 <NativeSelect.Field
@@ -827,8 +827,8 @@ export const OverlayUser = ({
                                     )
                                   }
                                 >
-                                  <option value="no">Non-smoker</option>
-                                  <option value="yes">Smoker</option>
+                                  <option value="no">Nepušač</option>
+                                  <option value="yes">Pušač</option>
                                 </NativeSelect.Field>
                               </NativeSelect.Root>
                             </Box>
@@ -840,7 +840,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <MdOutlinePets />
-                                <Text>Has pets</Text>
+                                <Text>Ima ljubimce</Text>
                               </HStack>
                               <NativeSelect.Root>
                                 <NativeSelect.Field
@@ -852,8 +852,8 @@ export const OverlayUser = ({
                                     )
                                   }
                                 >
-                                  <option value="no">No</option>
-                                  <option value="yes">Yes</option>
+                                  <option value="no">Ne</option>
+                                  <option value="yes">Da</option>
                                 </NativeSelect.Field>
                               </NativeSelect.Root>
                             </Box>
@@ -865,7 +865,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <GiCardRandom />
-                                <Text>Hobbies</Text>
+                                <Text>Hobiji</Text>
                               </HStack>
                               <Textarea
                                 value={lifestyleData.hobbies}
@@ -886,7 +886,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <LuCalendar />
-                                <Text>Bed time</Text>
+                                <Text>Vrijeme spavanja</Text>
                               </HStack>
                               <Input
                                 type="time"
@@ -907,7 +907,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <LuCalendar />
-                                <Text>Wake up time</Text>
+                                <Text>Vrijeme buđenja</Text>
                               </HStack>
                               <Input
                                 type="time"
@@ -928,7 +928,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <MdCleaningServices />
-                                <Text>Cleanliness (1-5)</Text>
+                                <Text>Čistoća (1-5)</Text>
                               </HStack>
                               <Input
                                 type="number"
@@ -951,7 +951,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <LuUsers />
-                                <Text>Sociality (1-5)</Text>
+                                <Text>Društvenost (1-5)</Text>
                               </HStack>
                               <Input
                                 type="number"
@@ -974,7 +974,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <LuBriefcaseBusiness />
-                                <Text>Work schedule</Text>
+                                <Text>Radni raspored</Text>
                               </HStack>
                               <Input
                                 value={lifestyleData.workSchedule}
@@ -994,7 +994,7 @@ export const OverlayUser = ({
                                 gap="1"
                               >
                                 <MdOutlineRestaurant />
-                                <Text>Nutrition</Text>
+                                <Text>Prehrana</Text>
                               </HStack>
                               <Input
                                 value={lifestyleData.nutrition}
@@ -1011,7 +1011,7 @@ export const OverlayUser = ({
                       </VStack>
                     ) : (
                       <Text color="fg.muted">
-                        No lifestyle profile available.
+                        Nema dostupnog profila životnog stila.
                       </Text>
                     )}
 
@@ -1022,7 +1022,7 @@ export const OverlayUser = ({
                             variant="outline"
                             onClick={() => setIsLifestyleEditMode(true)}
                           >
-                            <LuPencil /> Edit
+                            <LuPencil /> Uredi
                           </Button>
                         ) : (
                           <HStack gap="3">
@@ -1031,13 +1031,13 @@ export const OverlayUser = ({
                               onClick={handleSaveLifestyleProfile}
                               loading={isLifestyleSaving}
                             >
-                              <LuSave /> Save
+                              <LuSave /> Spremi
                             </Button>
                             <Button
                               variant="outline"
                               onClick={handleCancelLifestyleEdit}
                             >
-                              <LuX /> Cancel
+                              <LuX /> Otkaži
                             </Button>
                           </HStack>
                         )}
@@ -1060,7 +1060,7 @@ export const OverlayUser = ({
                   >
                     <Image
                       src={selectedImage}
-                      alt="Enlarged profile photo"
+                      alt="Uvećana profilna fotografija"
                       maxW="90vw"
                       maxH="85vh"
                       borderRadius="lg"
@@ -1077,7 +1077,7 @@ export const OverlayUser = ({
                       onClick={() => setIsConfirmOpen(true)}
                       loading={isDeleting}
                     >
-                      <LuTrash /> Delete user
+                      <LuTrash /> Obriši korisnika
                     </Button>
                   </Flex>
                 )}
@@ -1100,10 +1100,10 @@ export const OverlayUser = ({
           <Dialog.Positioner>
             <Dialog.Content maxW="md">
               <Dialog.Header>
-                <Dialog.Title>Delete user</Dialog.Title>
+                <Dialog.Title>Obriši korisnika</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
-                <Text>Are you sure you want to delete this user?</Text>
+                <Text>Jesu li sigurni da želite obrisati ovog korisnika?</Text>
               </Dialog.Body>
               <Dialog.Footer gap="3">
                 <Button
@@ -1111,14 +1111,14 @@ export const OverlayUser = ({
                   onClick={() => setIsConfirmOpen(false)}
                   disabled={isDeleting}
                 >
-                  Cancel
+                  Otkaži
                 </Button>
                 <Button
                   colorPalette="red"
                   onClick={confirmDeleteUser}
                   loading={isDeleting}
                 >
-                  Delete
+                  Obriši
                 </Button>
               </Dialog.Footer>
             </Dialog.Content>

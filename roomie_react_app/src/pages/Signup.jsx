@@ -24,7 +24,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [city, setCity] = useState("");
-  const [gender, setGender] = useState("Male");
+  const [gender, setGender] = useState("Muško");
   const [hasAccomodation, setHasAccomodation] = useState(true);
   const [buttonLoading, setButtonLoading] = useState(false);
 
@@ -58,28 +58,28 @@ const Signup = () => {
       if (response.status === 500) {
         setButtonLoading(false);
         toaster.create({
-          description: "Server error occurred.",
+          description: "Desila se greška na serveru.",
           type: "error",
         });
         return false;
       } else if (response.status === 409) {
         setButtonLoading(false);
         toaster.create({
-          description: "Email already in use.",
+          description: "Email je već u upotrebi.",
           type: "warning",
         });
         return false;
       } else if (response.ok) {
         setButtonLoading(false);
         toaster.create({
-          description: "Registration successful!",
+          description: "Registracija uspješna!",
           type: "success",
         });
         // reset form fields
 
         setName("");
         setSurname("");
-        setGender("Male");
+        setGender("Muško");
         setCity("");
         setYob(2005);
 
@@ -88,7 +88,7 @@ const Signup = () => {
     } else {
       toaster.create({
         description:
-          "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+          "Lozinka mora biti najmanje 8 znakova i uključiti velika slova, mala slova, brojeve i posebne znakove.",
         type: "warning",
       });
       setButtonLoading(false);
@@ -110,12 +110,12 @@ const Signup = () => {
     const response = await fetch(urlLoginUser, optionsLoginUser);
     if (response.status === 401) {
       toaster.create({
-        description: "Invalid email or password.",
+        description: "Nevaljana email ili lozinka.",
         type: "error",
       });
     } else if (response.ok) {
       toaster.create({
-        description: "Login successful!",
+        description: "Prijava uspješna!",
         type: "success",
       });
 
@@ -148,17 +148,17 @@ const Signup = () => {
     <Box>
       <Box bg="gray.800" className={styles.signupBox}>
         <Heading as="h2" fontSize="2xl" mb={4} className={styles.heading}>
-          Create an account
+          Kreiraj račun
         </Heading>
         <Text mb={4}>
-          Already have an account?{" "}
+          Već imaš račun?{" "}
           <Link as={NavLink} color="teal" variant="underline" to="/login">
-            Log in
+            Prijava
           </Link>
         </Text>
         <Field.Root mb={4} required>
           <Field.Label>
-            Name <Field.RequiredIndicator />
+            Ime <Field.RequiredIndicator />
           </Field.Label>
           <Input
             type="text"
@@ -169,7 +169,7 @@ const Signup = () => {
         </Field.Root>
         <Field.Root mb={4} required>
           <Field.Label>
-            Surname <Field.RequiredIndicator />
+            Prezime <Field.RequiredIndicator />
           </Field.Label>
           <Input
             type="text"
@@ -179,37 +179,37 @@ const Signup = () => {
           />
         </Field.Root>
         <Field.Root mb={4}>
-          <Field.Label>Gender</Field.Label>
-          <RadioGroup.Root defaultValue="Male" value={gender}>
+          <Field.Label>Spol</Field.Label>
+          <RadioGroup.Root defaultValue="Muško" value={gender}>
             <HStack gap="6">
               <RadioGroup.Item
                 key="male"
-                value="Male"
+                value="Muško"
                 onClick={() => {
-                  setGender("Male");
+                  setGender("Muško");
                 }}
               >
                 <RadioGroup.ItemHiddenInput />
                 <RadioGroup.ItemIndicator />
-                <RadioGroup.ItemText>Male</RadioGroup.ItemText>
+                <RadioGroup.ItemText>Muško</RadioGroup.ItemText>
               </RadioGroup.Item>
               <RadioGroup.Item
                 key="female"
-                value="Female"
+                value="Žensko"
                 onClick={() => {
-                  setGender("Female");
+                  setGender("Žensko");
                 }}
               >
                 <RadioGroup.ItemHiddenInput />
                 <RadioGroup.ItemIndicator />
-                <RadioGroup.ItemText>Female</RadioGroup.ItemText>
+                <RadioGroup.ItemText>Žensko</RadioGroup.ItemText>
               </RadioGroup.Item>
             </HStack>
           </RadioGroup.Root>
         </Field.Root>
         <Field.Root>
           <Field.Label mt={4} mb={2}>
-            Year of birth
+            Godina rođenja
           </Field.Label>
 
           <NativeSelect.Root size="sm" width="6rem" mb={4}>
@@ -228,7 +228,7 @@ const Signup = () => {
         </Field.Root>
         <Field.Root mb={4} required>
           <Field.Label>
-            City <Field.RequiredIndicator />
+            Grad <Field.RequiredIndicator />
           </Field.Label>
           <Input
             type="text"
@@ -239,7 +239,7 @@ const Signup = () => {
         </Field.Root>
         <Field.Root mb={4} required>
           <Field.Label>
-            Email address <Field.RequiredIndicator />
+            Email adresa <Field.RequiredIndicator />
           </Field.Label>
           <Input
             type="email"
@@ -250,7 +250,7 @@ const Signup = () => {
         </Field.Root>
         <Field.Root mb={4} required>
           <Field.Label>
-            Password <Field.RequiredIndicator />
+            Lozinka <Field.RequiredIndicator />
           </Field.Label>
           <PasswordInput
             value={password}
@@ -259,7 +259,7 @@ const Signup = () => {
           />
         </Field.Root>
         <Field.Root mb={4}>
-          <Field.Label>Accommodation</Field.Label>
+          <Field.Label>Smještaj</Field.Label>
           <NativeSelect.Root size="sm" width="full">
             <NativeSelect.Field
               value={hasAccomodation}
@@ -269,10 +269,8 @@ const Signup = () => {
                 )
               }
             >
-              <option value="true">I have a place to share</option>
-              <option value="false">
-                I'm looking for a place and a roommate
-              </option>
+              <option value="true">Imam mjesto za dijeljenje</option>
+              <option value="false">Trebam mjesto i cimera</option>
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
@@ -292,16 +290,20 @@ const Signup = () => {
             password === "" ||
             city === ""
           }
-          onClick={() => {
-            const flag = createUser();
-            if (flag) {
-              setTimeout(() => {
-                loginUser();
-              }, 1000);
+          onClick={async () => {
+            setButtonLoading(true);
+            try {
+              const created = await createUser();
+              if (created) {
+                // attempt login after successful registration
+                await loginUser();
+              }
+            } finally {
+              setButtonLoading(false);
             }
           }}
         >
-          Sign up
+          Registracija
         </Button>
       </Box>
       <Toaster />

@@ -33,7 +33,7 @@ const formatValue = (value) => {
   }
 
   if (typeof value === "boolean") {
-    return value ? "Yes" : "No";
+    return value ? "Da" : "Ne";
   }
 
   return String(value);
@@ -99,10 +99,10 @@ const AdminPage = () => {
         setUsers(Array.isArray(usersData) ? usersData : []);
         setRooms(Array.isArray(roomsData) ? roomsData : []);
       } catch (fetchError) {
-        console.error("Error loading admin data:", fetchError);
+        console.error("Greška pri učitavanju admin podataka:", fetchError);
         if (isActive) {
           setError(
-            fetchError?.message || "Unable to load admin dashboard data",
+            fetchError?.message || "Nije moguće učitati podatke admin panela",
           );
         }
       } finally {
@@ -282,10 +282,10 @@ const AdminPage = () => {
             Admin Panel
           </Badge>
           <Heading as="h1" size="3xl">
-            Roomie administration
+            Administracija Roomie-a
           </Heading>
           <Text maxW="2xl" color="whiteAlpha.800" fontSize="lg">
-            Overview of the platform with quick access to users and room data.
+            Pregled platforme s brzim pristupom korisničkim i sobnim podacima.
           </Text>
         </Flex>
 
@@ -299,12 +299,12 @@ const AdminPage = () => {
             {...cardStyles}
           >
             <Spinner size="xl" color="cyan.300" />
-            <Text color="whiteAlpha.800">Loading admin data...</Text>
+            <Text color="whiteAlpha.800">Učitavanje admin podataka...</Text>
           </Flex>
         ) : error ? (
           <Box p={6} {...cardStyles}>
             <Heading as="h2" size="md" mb={2}>
-              Could not load admin data
+              Nije moguće učitati admin podatke
             </Heading>
             <Text color="red.200">{error}</Text>
           </Box>
@@ -320,13 +320,13 @@ const AdminPage = () => {
             >
               <Tabs.List gap={2} border="none">
                 <Tabs.Trigger value="dashboard" px={4} py={3} borderRadius="xl">
-                  Dashboard
+                  Nadzorna ploča
                 </Tabs.Trigger>
                 <Tabs.Trigger value="users" px={4} py={3} borderRadius="xl">
-                  Users
+                  Korisnici
                 </Tabs.Trigger>
                 <Tabs.Trigger value="rooms" px={4} py={3} borderRadius="xl">
-                  Rooms
+                  Sobe
                 </Tabs.Trigger>
               </Tabs.List>
             </Box>
@@ -335,7 +335,7 @@ const AdminPage = () => {
               <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
                 <Box p={6} {...cardStyles}>
                   <Text color="whiteAlpha.700" mb={2}>
-                    Total users
+                    Ukupno korisnika
                   </Text>
                   <Heading as="p" size="4xl">
                     {totalUsers}
@@ -344,7 +344,7 @@ const AdminPage = () => {
 
                 <Box p={6} {...cardStyles}>
                   <Text color="whiteAlpha.700" mb={2}>
-                    Total rooms
+                    Ukupno soba
                   </Text>
                   <Heading as="p" size="4xl">
                     {totalRooms}
@@ -356,12 +356,12 @@ const AdminPage = () => {
             <Tabs.Content value="users">
               <Box p={6} overflowX="auto" {...cardStyles}>
                 <Heading as="h2" size="lg" mb={4}>
-                  Users
+                  Korisnici
                 </Heading>
                 <Input
                   mb={5}
                   maxW="420px"
-                  placeholder="Search by name, last name, email..."
+                  placeholder="Pretraži po imenu, prezimenu, email..."
                   value={userSearch}
                   onChange={(event) => setUserSearch(event.target.value)}
                   bg="whiteAlpha.100"
@@ -377,12 +377,12 @@ const AdminPage = () => {
                     >
                       {[
                         "ID",
-                        "Name",
-                        "Last name",
+                        "Ime",
+                        "Prezime",
                         "Email",
-                        "City",
-                        "Gender",
-                        "Role",
+                        "Grad",
+                        "Spol",
+                        "Uloga",
                       ].map((header) => (
                         <Box
                           as="th"
@@ -440,7 +440,7 @@ const AdminPage = () => {
                     ) : (
                       <Box as="tr">
                         <Box as="td" py={5} color="whiteAlpha.700" colSpan={7}>
-                          No users match the current search.
+                          Nema korisnika koji odgovaraju trenutnoj pretrazi.
                         </Box>
                       </Box>
                     )}
@@ -452,12 +452,12 @@ const AdminPage = () => {
             <Tabs.Content value="rooms">
               <Box p={6} overflowX="auto" {...cardStyles}>
                 <Heading as="h2" size="lg" mb={4}>
-                  Rooms
+                  Sobe
                 </Heading>
                 <Input
                   mb={5}
                   maxW="420px"
-                  placeholder="Search by name, address, city..."
+                  placeholder="Pretraži po imenu, adresi, gradu..."
                   value={roomSearch}
                   onChange={(event) => setRoomSearch(event.target.value)}
                   bg="whiteAlpha.100"
@@ -479,12 +479,12 @@ const AdminPage = () => {
                     >
                       {[
                         "ID",
-                        "Name",
-                        "Address",
-                        "City",
-                        "Price",
-                        "Owner",
-                        "Capacity",
+                        "Naziv",
+                        "Adresa",
+                        "Grad",
+                        "Cijena",
+                        "Vlasnik",
+                        "Kapacitet",
                       ].map((header) => (
                         <Box
                           as="th"
@@ -547,7 +547,7 @@ const AdminPage = () => {
                           color="whiteAlpha.700"
                           colSpan={7}
                         >
-                          No rooms match the current search.
+                          Nema soba koje odgovaraju trenutnoj pretrazi.
                         </Box>
                       </Box>
                     )}

@@ -182,7 +182,7 @@ const MessagingWindow = (props) => {
 
   // SEND message
   const handleSendMessage = () => {
-    if (!message.trim()) return;
+    if (!receiver || !message.trim()) return;
 
     const msgObj = {
       conversationId: conversation.id,
@@ -223,7 +223,7 @@ const MessagingWindow = (props) => {
 
       <ScrollArea.Root padding="4" ref={scrollAreaRef}>
         <ScrollArea.Viewport>
-          <ScrollArea.Content>
+          <ScrollArea.Content pb={receiver ? "80px" : "2"}>
             {messages.map((msg) => (
               <Box
                 key={msg.id}
@@ -273,15 +273,17 @@ const MessagingWindow = (props) => {
         </ScrollArea.Viewport>
       </ScrollArea.Root>
 
-      <Box position="absolute" bottom="2" left="25.5%" width="74%">
-        <Input
-          borderRadius="100rem"
-          placeholder="Type a message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleEnterPress}
-        />
-      </Box>
+      {receiver && (
+        <Box position="absolute" bottom="2" left="25.5%" width="74%">
+          <Input
+            borderRadius="100rem"
+            placeholder="Upiši poruku..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleEnterPress}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

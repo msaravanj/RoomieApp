@@ -39,7 +39,7 @@ const Login = () => {
 
       if (response.status === 401) {
         toaster.create({
-          description: "Invalid email or password.",
+          description: "Nevaljana email ili lozinka.",
           type: "error",
         });
         return;
@@ -47,14 +47,14 @@ const Login = () => {
 
       if (!response.ok) {
         toaster.create({
-          description: "Login failed. Please try again.",
+          description: "Prijava nije uspjela. Pokušaj ponovno.",
           type: "error",
         });
         return;
       }
 
       toaster.create({
-        description: "Login successful!",
+        description: "Prijava uspješna!",
         type: "success",
       });
 
@@ -78,11 +78,11 @@ const Login = () => {
     <Box>
       <Box bg="gray.800" className={styles.loginBox}>
         <Heading as="h2" fontSize="2xl" mb={4} className={styles.heading}>
-          Login to your account
+          Prijava u tvoj račun
         </Heading>
 
         <Field.Root mb={4}>
-          <Field.Label>Email address</Field.Label>
+          <Field.Label>Email adresa</Field.Label>
           <Input
             type="email"
             value={email}
@@ -90,7 +90,7 @@ const Login = () => {
           />
         </Field.Root>
         <Field.Root mb={4}>
-          <Field.Label>Password</Field.Label>
+          <Field.Label>Lozinka</Field.Label>
           <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -105,11 +105,11 @@ const Login = () => {
           loading={buttonLoading}
           onClick={loginUser}
         >
-          Log in
+          Prijava
         </Button>
         <HStack marginTop={2}>
           <Separator borderColor="gray.600" flex="1" />
-          <Text flexShrink="0">New to Roomie?</Text>
+          <Text flexShrink="0">Novi na Roomie-ju?</Text>
           <Separator borderColor="gray.600" flex="1" />
         </HStack>
         <Button
@@ -121,7 +121,7 @@ const Login = () => {
           width="full"
           _hover={{ backgroundColor: "teal.600" }}
         >
-          Create an account
+          Kreiraj račun
         </Button>
       </Box>
       <Toaster />

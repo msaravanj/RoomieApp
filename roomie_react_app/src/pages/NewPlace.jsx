@@ -85,7 +85,7 @@ const NewPlace = () => {
     } else if (response.status === 500) {
       setButtonLoading(false);
       toaster.create({
-        description: "Server error occurred during saving photo record.",
+        description: "Desila se greška na serveru pri spremanju fotografije.",
         type: "error",
       });
     } else if (response.ok) {
@@ -94,7 +94,7 @@ const NewPlace = () => {
     } else {
       setButtonLoading(false);
       toaster.create({
-        description: "Failed to save photo record.",
+        description: "Greška pri spremanju zapisa o fotografiji.",
         type: "error",
       });
     }
@@ -112,7 +112,7 @@ const NewPlace = () => {
     } else if (response.status === 500) {
       setButtonLoading(false);
       toaster.create({
-        description: "Server error occurred.",
+        description: "Desila se greška na serveru.",
         type: "error",
       });
     } else if (response.ok) {
@@ -124,7 +124,7 @@ const NewPlace = () => {
     } else {
       setButtonLoading(false);
       toaster.create({
-        description: "Failed to save a photo.",
+        description: "Greška pri spremanju fotografije.",
         type: "error",
       });
     }
@@ -165,7 +165,7 @@ const NewPlace = () => {
     } else if (response.status === 500) {
       setButtonLoading(false);
       toaster.create({
-        description: "Server error occurred during creating place.",
+        description: "Desila se greška na serveru pri kreiranju mjesta.",
         type: "error",
       });
     } else if (response.ok) {
@@ -176,7 +176,7 @@ const NewPlace = () => {
     } else {
       setButtonLoading(false);
       toaster.create({
-        description: "Failed to add place.",
+        description: "Greška pri dodavanju mjesta.",
         type: "error",
       });
     }
@@ -186,10 +186,10 @@ const NewPlace = () => {
     <Box>
       <Box bg="gray.800" className={styles.loginBox}>
         <Heading as="h2" fontSize="2xl" mb={2} className={styles.heading}>
-          Give information about your place
+          Daj informacije o svojoj lokaciji
         </Heading>
         <Field.Root>
-          <Field.Label>Title</Field.Label>
+          <Field.Label>Naslov</Field.Label>
           <Input
             type="text"
             value={name}
@@ -197,7 +197,7 @@ const NewPlace = () => {
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>City</Field.Label>
+          <Field.Label>Grad</Field.Label>
           <Input
             type="text"
             value={city}
@@ -205,7 +205,7 @@ const NewPlace = () => {
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>Address</Field.Label>
+          <Field.Label>Adresa</Field.Label>
           <Input
             type="text"
             value={address}
@@ -213,14 +213,14 @@ const NewPlace = () => {
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>Description</Field.Label>
+          <Field.Label>Opis</Field.Label>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>Number of rooms</Field.Label>
+          <Field.Label>Broj soba</Field.Label>
           <NumberInput.Root
             value={numberOfRooms}
             width="10rem"
@@ -233,7 +233,7 @@ const NewPlace = () => {
           </NumberInput.Root>
         </Field.Root>
         <Field.Root>
-          <Field.Label>Capacity</Field.Label>
+          <Field.Label>Kapacitet</Field.Label>
           <NumberInput.Root
             value={capacity}
             width="10rem"
@@ -246,7 +246,7 @@ const NewPlace = () => {
           </NumberInput.Root>
         </Field.Root>
         <Field.Root>
-          <Field.Label>Size (m²)</Field.Label>
+          <Field.Label>Veličina (m²)</Field.Label>
           <NumberInput.Root
             value={sizeM2}
             width="10rem"
@@ -259,7 +259,7 @@ const NewPlace = () => {
           </NumberInput.Root>
         </Field.Root>
         <Field.Root>
-          <Field.Label>Price per month (€) - by person</Field.Label>
+          <Field.Label>Cijena po mjesecu (€) - po osobi</Field.Label>
           <NumberInput.Root
             value={pricePerMonth}
             width="10rem"
@@ -272,7 +272,7 @@ const NewPlace = () => {
           </NumberInput.Root>
         </Field.Root>
         <Field.Root>
-          <Field.Label>Available from</Field.Label>
+          <Field.Label>Dostupno od</Field.Label>
           <Input
             type="date"
             value={availableFrom}
@@ -280,7 +280,7 @@ const NewPlace = () => {
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>Available to</Field.Label>
+          <Field.Label>Dostupno do</Field.Label>
           <Input
             type="date"
             value={availableTo}
@@ -288,7 +288,7 @@ const NewPlace = () => {
           />
         </Field.Root>
         <Field.Root>
-          <Field.Label>Pet friendly?</Field.Label>
+          <Field.Label>Dozvoljeni ljubimci?</Field.Label>
           <NativeSelect.Root size="sm" width="full">
             <NativeSelect.Field
               value={isPetFriendly}
@@ -298,8 +298,8 @@ const NewPlace = () => {
                 )
               }
             >
-              <option value="true">Yes</option>
-              <option value="false">Pets are not allowed</option>
+              <option value="true">Da</option>
+              <option value="false">Ljubimci nisu dozvoljeni</option>
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
@@ -310,7 +310,7 @@ const NewPlace = () => {
           onFileAccept={(e) => setPhotos(e.files)}
         >
           <FileUpload.HiddenInput />
-          <FileUpload.Label>Upload images</FileUpload.Label>
+          <FileUpload.Label>Odaberi fotografije</FileUpload.Label>
           <InputGroup
             startElement={<LuFileImage />}
             endElement={
@@ -369,7 +369,7 @@ const NewPlace = () => {
               await savePhotoRecord(url, data.id);
             }
             toaster.create({
-              description: "Saved successfully!",
+              description: "Uspješno spremljeno!",
               type: "success",
             });
 
@@ -378,7 +378,7 @@ const NewPlace = () => {
             }, 1000);
           }}
         >
-          Save
+          Spremi
         </Button>
       </Box>
       <Toaster />

@@ -11,10 +11,10 @@ const Banner = () => {
       color="white"
     >
       <Heading as="h1" size="6xl" mb="4" fontWeight="700">
-        Welcome to Roomie
+        Dobrodošao na Roomie
       </Heading>
       <Text fontSize="xl" opacity="0.95" mb="6" fontWeight="400">
-        Find your perfect roommate
+        Pronađi svog savršenog cimera
       </Text>
       {localStorage.getItem("token") == null && (
         <HStack spacing="4" justify="center" margin="3rem" gap="1rem">
@@ -25,7 +25,7 @@ const Banner = () => {
             as={NavLink}
             to="/login"
           >
-            Login
+            Prijava
           </Button>
           <Button
             colorScheme="whiteAlpha"
@@ -34,7 +34,7 @@ const Banner = () => {
             as={NavLink}
             to="/signup"
           >
-            Register
+            Registracija
           </Button>
         </HStack>
       )}

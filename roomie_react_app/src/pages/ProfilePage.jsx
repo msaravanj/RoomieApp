@@ -208,10 +208,10 @@ const ProfilePage = () => {
         },
       );
       if (!response.ok) {
-        throw new Error("Failed to delete room");
+        throw new Error("Nije uspjelo obrisati sobu");
       } else {
         toaster.create({
-          description: "Room deleted successfully",
+          description: "Soba obrisana uspješno",
           type: "success",
         });
         setRoom(null);
@@ -222,7 +222,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error deleting room:", error);
       toaster.create({
-        description: "Failed to delete room",
+        description: "Nije uspjelo obrisati sobu",
         type: "error",
       });
     }
@@ -241,18 +241,18 @@ const ProfilePage = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete photo");
+        throw new Error("Nije uspjelo obrisati fotografiju");
       }
 
       setRoomPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
       toaster.create({
-        description: "Photo deleted successfully",
+        description: "Fotografija obrisana uspješno",
         type: "success",
       });
     } catch (error) {
       console.error("Error deleting photo:", error);
       toaster.create({
-        description: "Failed to delete photo",
+        description: "Nije uspjelo obrisati fotografiju",
         type: "error",
       });
     }
@@ -319,19 +319,19 @@ const ProfilePage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to upload avatar");
+        throw new Error("Nije uspjelo učitati profilnu sliku");
       }
 
       const uploadedUrl = await response.text();
       handleInputChange("profilePictureUrl", uploadedUrl);
       toaster.create({
-        description: "Avatar uploaded successfully",
+        description: "Profilna slika je uspješno učitana",
         type: "success",
       });
     } catch (error) {
       console.error("Error uploading avatar:", error);
       toaster.create({
-        description: "Failed to upload avatar",
+        description: "Nije uspjelo učitati profilnu sliku",
         type: "error",
       });
     } finally {
@@ -368,7 +368,7 @@ const ProfilePage = () => {
       );
 
       if (!uploadResponse.ok) {
-        throw new Error("Failed to upload room photo");
+        throw new Error("Nije uspjelo učitati fotografiju sobe");
       }
 
       const uploadedUrl = await uploadResponse.text();
@@ -388,12 +388,14 @@ const ProfilePage = () => {
 
       if (!saveResponse.ok) {
         const errorText = await saveResponse.text();
-        throw new Error(errorText || "Failed to save photo in database");
+        throw new Error(
+          errorText || "Nije uspjelo spremiti fotografiju u bazu",
+        );
       }
 
       await fetchRoomPhotos(housingId);
       toaster.create({
-        description: "Room photo uploaded successfully",
+        description: "Fotografija sobe je uspješno učitana",
         type: "success",
       });
     } catch (error) {
@@ -402,7 +404,7 @@ const ProfilePage = () => {
         description:
           error?.message && error.message !== "[object Object]"
             ? error.message
-            : "Failed to upload room photo",
+            : "Nije uspjelo učitati fotografiju sobe",
         type: "error",
       });
     } finally {
@@ -442,12 +444,12 @@ const ProfilePage = () => {
       });
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to update room info");
+        throw new Error(errorText || "Nije uspjelo ažurirati info o sobi");
       }
       await fetchRoom(user.id);
       setIsRoomEditMode(false);
       toaster.create({
-        description: "Room info updated successfully",
+        description: "Info o sobi je uspješno ažurirana",
         type: "success",
       });
     } catch (error) {
@@ -456,7 +458,7 @@ const ProfilePage = () => {
         description:
           error?.message && error.message !== "[object Object]"
             ? error.message
-            : "Failed to update room info",
+            : "Nije uspjelo ažurirati info o sobi",
         type: "error",
       });
     } finally {
@@ -515,13 +517,13 @@ const ProfilePage = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to update profile");
+        throw new Error(errorText || "Nije uspjelo ažurirati profil");
       }
 
       await fetchUserData();
       setIsEditMode(false);
       toaster.create({
-        description: "Profile updated successfully",
+        description: "Profil je uspješno ažuriran",
         type: "success",
       });
     } catch (error) {
@@ -530,7 +532,7 @@ const ProfilePage = () => {
         description:
           error?.message && error.message !== "[object Object]"
             ? error.message
-            : "Failed to update profile",
+            : "Nije uspjelo ažurirati profil",
         type: "error",
       });
     } finally {
@@ -607,7 +609,9 @@ const ProfilePage = () => {
                         }}
                       >
                         <FileUpload.HiddenInput />
-                        <FileUpload.Label>Upload avatar image</FileUpload.Label>
+                        <FileUpload.Label>
+                          Učitaj profilnu sliku
+                        </FileUpload.Label>
                         <InputGroup
                           startElement={<LuFileImage />}
                           endElement={
@@ -631,7 +635,7 @@ const ProfilePage = () => {
                         </InputGroup>
                         {avatarUploading && (
                           <Text fontSize="sm" color="gray.500">
-                            Uploading avatar...
+                            Učitavanje profilne slike...
                           </Text>
                         )}
                       </FileUpload.Root>
@@ -647,11 +651,11 @@ const ProfilePage = () => {
                         </Heading>
                         <Text color="gray.600">{user.gender || "-"}</Text>
                         <HStack>
-                          <Text fontWeight="medium">Age:</Text>
-                          <Text>{getAge(user.yob)} years old</Text>
+                          <Text fontWeight="medium">Dob:</Text>
+                          <Text>{getAge(user.yob)} godina</Text>
                         </HStack>
                         <HStack>
-                          <Text fontWeight="medium">City:</Text>
+                          <Text fontWeight="medium">Grad:</Text>
                           <Text>{user.city || "-"}</Text>
                         </HStack>
                       </VStack>
@@ -659,27 +663,27 @@ const ProfilePage = () => {
                       <VStack align="start" spacing={4} w="full">
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            First Name
+                            Ime
                           </Text>
                           <Input
                             value={profileData.name}
                             onChange={(e) =>
                               handleInputChange("name", e.target.value)
                             }
-                            placeholder="First name"
+                            placeholder="Upiši ime"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Last Name
+                            Prezime
                           </Text>
                           <Input
                             value={profileData.lastName}
                             onChange={(e) =>
                               handleInputChange("lastName", e.target.value)
                             }
-                            placeholder="Last name"
+                            placeholder="Upiši prezime"
                             size="md"
                           />
                         </Box>
@@ -701,21 +705,21 @@ const ProfilePage = () => {
                     textTransform="uppercase"
                     color="green.600"
                   >
-                    Profile Details
+                    Detalji profila
                   </Heading>
 
                   {!isEditMode ? (
                     <VStack spacing={4} align="stretch">
                       <HStack justify="space-between">
-                        <Text fontWeight="medium">Gender</Text>
+                        <Text fontWeight="medium">Spol</Text>
                         <Text>{user.gender || "-"}</Text>
                       </HStack>
                       <HStack justify="space-between">
-                        <Text fontWeight="medium">Year of Birth</Text>
+                        <Text fontWeight="medium">Godina rođenja</Text>
                         <Text>{user.yob || "-"}</Text>
                       </HStack>
                       <HStack justify="space-between">
-                        <Text fontWeight="medium">City</Text>
+                        <Text fontWeight="medium">Grad</Text>
                         <Text>{user.city || "-"}</Text>
                       </HStack>
                     </VStack>
@@ -723,7 +727,7 @@ const ProfilePage = () => {
                     <VStack spacing={4} align="stretch">
                       <Box>
                         <Text fontWeight="medium" mb={2}>
-                          Gender
+                          Spol
                         </Text>
                         <NativeSelect.Root size="md">
                           <NativeSelect.Field
@@ -732,16 +736,16 @@ const ProfilePage = () => {
                               handleInputChange("gender", e.target.value)
                             }
                           >
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                            <option value="">Odaberi spol</option>
+                            <option value="Muško">Muško</option>
+                            <option value="Žensko">Žensko</option>
                           </NativeSelect.Field>
                         </NativeSelect.Root>
                       </Box>
 
                       <Box>
                         <Text fontWeight="medium" mb={2}>
-                          Year of Birth
+                          Godina rođenja
                         </Text>
                         <Input
                           type="number"
@@ -749,21 +753,21 @@ const ProfilePage = () => {
                           onChange={(e) =>
                             handleInputChange("yob", e.target.value)
                           }
-                          placeholder="YYYY"
+                          placeholder="GGGG"
                           size="md"
                         />
                       </Box>
 
                       <Box>
                         <Text fontWeight="medium" mb={2}>
-                          City
+                          Grad
                         </Text>
                         <Input
                           value={profileData.city}
                           onChange={(e) =>
                             handleInputChange("city", e.target.value)
                           }
-                          placeholder="Your city"
+                          placeholder="Tvoj grad"
                           size="md"
                         />
                       </Box>
@@ -778,7 +782,7 @@ const ProfilePage = () => {
                         onClick={() => setIsEditMode(true)}
                         leftIcon={<LuPencil />}
                       >
-                        Edit Profile
+                        Uredi profil
                       </Button>
                     ) : (
                       <>
@@ -789,7 +793,7 @@ const ProfilePage = () => {
                           isLoading={loading}
                           leftIcon={<LuSave />}
                         >
-                          Save Changes
+                          Spremi promjene
                         </Button>
                         <Button
                           variant="outline"
@@ -797,7 +801,7 @@ const ProfilePage = () => {
                           onClick={handleCancelProfileInfo}
                           leftIcon={<LuX />}
                         >
-                          Cancel
+                          Otkaži
                         </Button>
                       </>
                     )}
@@ -817,39 +821,39 @@ const ProfilePage = () => {
                       textTransform="uppercase"
                       color="green.600"
                     >
-                      Room Info
+                      Info o sobi
                     </Heading>
 
                     {!isRoomEditMode ? (
                       <VStack spacing={4} align="stretch">
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Name</Text>
+                          <Text fontWeight="medium">Naziv</Text>
                           <Text>{room.name || "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Address</Text>
+                          <Text fontWeight="medium">Adresa</Text>
                           <Text>{room.address || "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">City</Text>
+                          <Text fontWeight="medium">Grad</Text>
                           <Text>{room.city || "-"}</Text>
                         </HStack>
                         <HStack justify="space-between" align="start">
-                          <Text fontWeight="medium">Description</Text>
+                          <Text fontWeight="medium">Opis</Text>
                           <Text textAlign="right" maxW="70%">
                             {room.description || "-"}
                           </Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Capacity</Text>
+                          <Text fontWeight="medium">Kapacitet</Text>
                           <Text>{room.capacity ?? "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Number of Rooms</Text>
+                          <Text fontWeight="medium">Broj soba</Text>
                           <Text>{room.numberOfRooms ?? "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Price per Month</Text>
+                          <Text fontWeight="medium">Cijena po mjesecu</Text>
                           <Text>
                             {room.pricePerMonth != null
                               ? `${room.pricePerMonth} EUR`
@@ -857,19 +861,19 @@ const ProfilePage = () => {
                           </Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Size (m²)</Text>
+                          <Text fontWeight="medium">Veličina (m²)</Text>
                           <Text>{room.sizeM2 ?? "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Pet Friendly</Text>
-                          <Text>{room.isPetFriendly ? "Yes" : "No"}</Text>
+                          <Text fontWeight="medium">Dozvoljeni ljubimci</Text>
+                          <Text>{room.isPetFriendly ? "Da" : "Ne"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Available From</Text>
+                          <Text fontWeight="medium">Dostupno od</Text>
                           <Text>{room.availableFrom || "-"}</Text>
                         </HStack>
                         <HStack justify="space-between">
-                          <Text fontWeight="medium">Available To</Text>
+                          <Text fontWeight="medium">Dostupno do</Text>
                           <Text>{room.availableTo || "-"}</Text>
                         </HStack>
                       </VStack>
@@ -877,46 +881,46 @@ const ProfilePage = () => {
                       <VStack spacing={4} align="stretch">
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Name
+                            Naziv
                           </Text>
                           <Input
                             value={roomData.name}
                             onChange={(e) =>
                               handleRoomInputChange("name", e.target.value)
                             }
-                            placeholder="Room name"
+                            placeholder="Naziv sobe"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Address
+                            Adresa
                           </Text>
                           <Input
                             value={roomData.address}
                             onChange={(e) =>
                               handleRoomInputChange("address", e.target.value)
                             }
-                            placeholder="Address"
+                            placeholder="Adresa"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            City
+                            Grad
                           </Text>
                           <Input
                             value={roomData.city}
                             onChange={(e) =>
                               handleRoomInputChange("city", e.target.value)
                             }
-                            placeholder="City"
+                            placeholder="Grad"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Description
+                            Opis
                           </Text>
                           <Input
                             value={roomData.description}
@@ -926,13 +930,13 @@ const ProfilePage = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Description"
+                            placeholder="Opis"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Capacity
+                            Kapacitet
                           </Text>
                           <Input
                             type="number"
@@ -940,13 +944,13 @@ const ProfilePage = () => {
                             onChange={(e) =>
                               handleRoomInputChange("capacity", e.target.value)
                             }
-                            placeholder="Capacity"
+                            placeholder="Kapacitet"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Number of Rooms
+                            Broj soba
                           </Text>
                           <Input
                             type="number"
@@ -957,13 +961,13 @@ const ProfilePage = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Number of rooms"
+                            placeholder="Broj soba"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Price per Month
+                            Cijena po mjesecu
                           </Text>
                           <Input
                             type="number"
@@ -974,13 +978,13 @@ const ProfilePage = () => {
                                 e.target.value,
                               )
                             }
-                            placeholder="Price"
+                            placeholder="Cijena"
                             size="md"
                           />
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Size (m²)
+                            Veličina (m²)
                           </Text>
                           <Input
                             type="number"
@@ -988,7 +992,7 @@ const ProfilePage = () => {
                             onChange={(e) =>
                               handleRoomInputChange("sizeM2", e.target.value)
                             }
-                            placeholder="Size"
+                            placeholder="Veličina"
                             size="md"
                           />
                         </Box>
@@ -1004,12 +1008,12 @@ const ProfilePage = () => {
                           >
                             <Checkbox.HiddenInput />
                             <Checkbox.Control />
-                            <Checkbox.Label>Pet Friendly</Checkbox.Label>
+                            <Checkbox.Label>Dozvoljeni ljubimci</Checkbox.Label>
                           </Checkbox.Root>
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Available From
+                            Dostupno od
                           </Text>
                           <Input
                             type="date"
@@ -1025,7 +1029,7 @@ const ProfilePage = () => {
                         </Box>
                         <Box>
                           <Text fontWeight="medium" mb={2}>
-                            Available To
+                            Dostupno do
                           </Text>
                           <Input
                             type="date"
@@ -1048,7 +1052,9 @@ const ProfilePage = () => {
                           }}
                         >
                           <FileUpload.HiddenInput />
-                          <FileUpload.Label>Upload room photo</FileUpload.Label>
+                          <FileUpload.Label>
+                            Učitaj fotografiju sobe
+                          </FileUpload.Label>
                           <InputGroup
                             startElement={<LuFileImage />}
                             endElement={
@@ -1072,7 +1078,7 @@ const ProfilePage = () => {
                           </InputGroup>
                           {roomPhotoUploading && (
                             <Text fontSize="sm" color="gray.500">
-                              Uploading room photo...
+                              Učitavanje fotografije sobe...
                             </Text>
                           )}
                         </FileUpload.Root>
@@ -1089,7 +1095,7 @@ const ProfilePage = () => {
                             >
                               <Image
                                 src={image.url}
-                                alt={`Room photo ${index + 1}`}
+                                alt={`Fotografija sobe ${index + 1}`}
                                 boxSize="120px"
                                 objectFit="cover"
                                 borderRadius="md"
@@ -1120,7 +1126,7 @@ const ProfilePage = () => {
                         </Flex>
                       ) : (
                         <Text color="gray.500" textAlign="center">
-                          No room photos available.
+                          Nema dostupnih fotografija sobe.
                         </Text>
                       )}
                     </Box>
@@ -1133,7 +1139,7 @@ const ProfilePage = () => {
                           onClick={() => setIsRoomEditMode(true)}
                           leftIcon={<LuPencil />}
                         >
-                          Edit Room Info
+                          Uredi info o sobi
                         </Button>
                       ) : (
                         <>
@@ -1144,7 +1150,7 @@ const ProfilePage = () => {
                             isLoading={loading}
                             leftIcon={<LuSave />}
                           >
-                            Save Changes
+                            Spremi promjene
                           </Button>
                           <Button
                             variant="outline"
@@ -1152,7 +1158,7 @@ const ProfilePage = () => {
                             onClick={handleCancelRoomInfo}
                             leftIcon={<LuX />}
                           >
-                            Cancel
+                            Otkaži
                           </Button>
                           <Button
                             colorPalette="red"
@@ -1165,7 +1171,7 @@ const ProfilePage = () => {
                               }
                             }}
                           >
-                            Delete Room
+                            Obriši sobu
                           </Button>
                         </>
                       )}
@@ -1185,10 +1191,10 @@ const ProfilePage = () => {
                     minH="300px"
                   >
                     <Heading size="lg" textAlign="center">
-                      No accommodation added yet
+                      Još nije dodana smještaj
                     </Heading>
                     <Text color="gray.600" textAlign="center">
-                      Start by adding your first place.
+                      Počni s dodavanjem svoje prve nekretnine.
                     </Text>
                     <Button
                       colorPalette="green"
@@ -1197,7 +1203,7 @@ const ProfilePage = () => {
                       to="/new-place"
                       leftIcon={<LuPlus />}
                     >
-                      Add new place
+                      Dodaj novu nekretninu
                     </Button>
                   </VStack>
                 </Card.Body>
@@ -1224,23 +1230,23 @@ const ProfilePage = () => {
                     <Dialog.Header>
                       <Dialog.Title>
                         {deleteDialogType === "photo"
-                          ? "Delete photo?"
-                          : "Delete room?"}
+                          ? "Obriši fotografiju?"
+                          : "Obriši sobu?"}
                       </Dialog.Title>
                     </Dialog.Header>
                     <Dialog.Body>
                       <Text>
                         {deleteDialogType === "photo"
-                          ? "This photo will be permanently removed."
-                          : "This room will be permanently removed, including its photos."}
+                          ? "Ova fotografija će biti trajno obrisana."
+                          : "Ova soba će biti trajno obrisana, uključujući njezine fotografije."}
                       </Text>
                     </Dialog.Body>
                     <Dialog.Footer>
                       <Button variant="outline" onClick={closeDeleteDialog}>
-                        Cancel
+                        Otkaži
                       </Button>
                       <Button colorPalette="red" onClick={confirmDeleteDialog}>
-                        Delete
+                        Obriši
                       </Button>
                     </Dialog.Footer>
                   </Dialog.Content>

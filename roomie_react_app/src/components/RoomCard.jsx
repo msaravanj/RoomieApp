@@ -40,7 +40,7 @@ const RoomCard = (props) => {
             </Text>
             <HStack gap="1" align="center">
               <LuUsers />
-              <Text as="span">{props.capacity} roommates</Text>
+              <Text as="span">{props.capacity} cimera</Text>
             </HStack>
           </Box>
           {props.matching?.score !== undefined &&
@@ -57,7 +57,7 @@ const RoomCard = (props) => {
                 textAlign="center"
               >
                 <Text fontSize="sm" fontWeight="medium" color="green.500">
-                  Roomie match
+                  Roomie podudaranje
                 </Text>
                 <Text
                   fontSize="3xl"
@@ -78,7 +78,7 @@ const RoomCard = (props) => {
             props.openRoomDialog();
           }}
         >
-          View
+          Pogledaj
         </Button>
       </Card.Footer>
     </Card.Root>
