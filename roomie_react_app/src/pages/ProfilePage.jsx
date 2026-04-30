@@ -1191,10 +1191,10 @@ const ProfilePage = () => {
                     minH="300px"
                   >
                     <Heading size="lg" textAlign="center">
-                      Još nije dodana smještaj
+                      Još nije dodan smještaj
                     </Heading>
                     <Text color="gray.600" textAlign="center">
-                      Počni s dodavanjem svoje prve nekretnine.
+                      Počni s dodavanjem svojeg prvog smještaja.
                     </Text>
                     <Button
                       colorPalette="green"
@@ -1203,7 +1203,7 @@ const ProfilePage = () => {
                       to="/new-place"
                       leftIcon={<LuPlus />}
                     >
-                      Dodaj novu nekretninu
+                      Dodaj novi smještaj
                     </Button>
                   </VStack>
                 </Card.Body>

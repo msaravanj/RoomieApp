@@ -1,6 +1,6 @@
 import { Box, Flex } from "@chakra-ui/react";
 import ConversationsScrollArea from "../components/ConversationsScrollArea";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import MessagingWindow from "../components/MessagingWindow";
 import { connectWebSocket } from "../services/websocket.js";
 import { useSearchParams } from "react-router-dom";
@@ -22,11 +22,16 @@ const ChatPage = () => {
   }, []);
 
   return (
-    <Flex direction="row" maxH="100vh" width="100%">
-      <Box width="25%">
+    <Flex direction="row" width="100%" height="100vh" overflow="hidden">
+      <Box
+        width={{ base: "0", lg: "25%" }}
+        minW="0"
+        overflow="visible"
+        flexShrink="0"
+      >
         <ConversationsScrollArea id={searchParams.get("id")} />
       </Box>
-      <Box width="75%">
+      <Box width={{ base: "100%", lg: "75%" }} minW="0">
         <MessagingWindow />
       </Box>
     </Flex>

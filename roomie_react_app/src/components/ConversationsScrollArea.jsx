@@ -238,15 +238,35 @@ const ScrollAreaComp = (props) => {
     <Box
       height={height}
       maxW="100%"
-      border="1px solid transparent"
-      borderColor="gray.700"
+      border="1px solid"
+      borderColor="whiteAlpha.100"
+      borderRadius={{ base: "2xl", lg: "0" }}
+      bg="gray.950"
+      boxShadow={{ base: "0 18px 50px rgba(0, 0, 0, 0.35)", lg: "none" }}
+      overflow="hidden"
     >
-      <Box p="4" pb="3">
+      <Box
+        p="4"
+        pb="3"
+        bg="linear-gradient(180deg, rgba(17, 24, 39, 0.96) 0%, rgba(17, 24, 39, 0.82) 100%)"
+        borderBottom="1px solid"
+        borderColor="whiteAlpha.100"
+        backdropFilter="blur(14px)"
+      >
         <Input
           borderRadius="full"
           placeholder="Pretraži korisnike po imenu i prezimenu..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          bg="whiteAlpha.100"
+          border="1px solid"
+          borderColor="whiteAlpha.200"
+          color="white"
+          _placeholder={{ color: "whiteAlpha.600" }}
+          _focusVisible={{
+            borderColor: "blue.300",
+            boxShadow: "0 0 0 1px rgba(96, 165, 250, 0.65)",
+          }}
         />
       </Box>
 
@@ -268,10 +288,22 @@ const ScrollAreaComp = (props) => {
               maskImage:
                 "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
             },
+            scrollbarWidth: "thin",
+            scrollbarColor: "rgba(148, 163, 184, 0.55) transparent",
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "rgba(148, 163, 184, 0.35)",
+              borderRadius: "999px",
+            },
           }}
         >
           <ScrollArea.Content>
-            <Stack gap="2" pb="2">
+            <Stack gap="2.5" pb="3" pt="1">
               {searchTerm.trim() && (
                 <>
                   <Text
@@ -341,27 +373,43 @@ const ScrollAreaComp = (props) => {
   // mobitel i tablet: Drawer
   return (
     <>
-      <Button
-        size="sm"
-        variant="solid"
-        onClick={() => setIsDrawerOpen(true)}
-        mb={2}
-        px={4}
-        borderRadius="full"
-        bg="blue.600"
-        color="white"
-        fontWeight="700"
-        letterSpacing="0.2px"
-        boxShadow="sm"
-        _hover={{
-          bg: "blue.500",
-          boxShadow: "md",
-        }}
-        _active={{ bg: "blue.700", transform: "scale(0.98)" }}
-        _focusVisible={{ boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.6)" }}
-      >
-        Poruke
-      </Button>
+      {!isDrawerOpen && (
+        <Box position="fixed" left="4" bottom="6" zIndex="40" width="auto">
+          <Button
+            minW="0"
+            height="2.35rem"
+            px="3.5"
+            onClick={() => setIsDrawerOpen(true)}
+            borderRadius="full"
+            bg="linear-gradient(135deg, rgba(37, 99, 235, 0.96) 0%, rgba(14, 165, 233, 0.96) 100%)"
+            color="white"
+            fontWeight="700"
+            fontSize="sm"
+            letterSpacing="0.2px"
+            boxShadow="0 10px 24px rgba(37, 99, 235, 0.32)"
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+            backdropFilter="blur(14px)"
+            _hover={{
+              transform: "translateY(-1px)",
+              boxShadow: "0 14px 28px rgba(37, 99, 235, 0.4)",
+            }}
+            _active={{ transform: "translateY(0) scale(0.99)" }}
+            _focusVisible={{ boxShadow: "0 0 0 3px rgba(147, 197, 253, 0.65)" }}
+          >
+            <Box display="flex" alignItems="center" gap="2">
+              <Box
+                boxSize="1.5"
+                borderRadius="full"
+                bg="white"
+                opacity="0.95"
+                boxShadow="0 0 0 4px rgba(255, 255, 255, 0.14)"
+              />
+              <Text as="span">Razgovori</Text>
+            </Box>
+          </Button>
+        </Box>
+      )}
 
       <Drawer.Root
         open={isDrawerOpen}
@@ -373,8 +421,18 @@ const ScrollAreaComp = (props) => {
         <Portal>
           <Drawer.Backdrop />
           <Drawer.Positioner>
-            <Drawer.Content maxW={{ base: "80vw", sm: "74vw", md: "66vw" }}>
-              <Drawer.Header>
+            <Drawer.Content
+              maxW={{ base: "84vw", sm: "74vw", md: "66vw" }}
+              bg="gray.950"
+              borderRightRadius="2xl"
+              boxShadow="0 24px 70px rgba(0, 0, 0, 0.45)"
+            >
+              <Drawer.Header
+                borderBottom="1px solid"
+                borderColor="whiteAlpha.100"
+                bg="linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(17, 24, 39, 0.9) 100%)"
+                backdropFilter="blur(14px)"
+              >
                 <Drawer.Title>Poruke</Drawer.Title>
               </Drawer.Header>
               <Drawer.CloseTrigger />

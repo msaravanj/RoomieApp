@@ -31,7 +31,7 @@ public class MessageController {
         return messageService.findAllMessagesForUser(userId);
     }
 
-    @PreAuthorize("authentication.principal.id == messageService.findById(#messageId).senderId or authentication.principal.id == messageService.findById(#messageId).receiverId or hasRole('ADMIN')")
+    @PreAuthorize("authentication.principal.id == @messageServiceImpl.findById(#messageId).senderId or authentication.principal.id == @messageServiceImpl.findById(#messageId).receiverId or hasRole('ADMIN')")
     @GetMapping("/messages/{messageId}")
     public MessageDto getMessageById(@PathVariable int messageId){
         MessageDto theMessage = messageService.findById(messageId);
@@ -57,7 +57,7 @@ public class MessageController {
         messageService.save(theMessage);
     }
 
-    @PreAuthorize("authentication.principal.id == messageService.findById(#messageId).senderId or hasRole('ADMIN')")
+    @PreAuthorize("authentication.principal.id == @messageServiceImpl.findById(#messageId).senderId or hasRole('ADMIN')")
     @DeleteMapping("/messages/{messageId}")
     public void deleteMessage(@PathVariable int messageId) {
         MessageDto tempMessage = messageService.findById(messageId);

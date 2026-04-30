@@ -25,6 +25,8 @@ const MessagingWindow = (props) => {
         },
         body: JSON.stringify({
           id: conversation.id,
+          user1_Id: conversation.user1_Id,
+          user2_Id: conversation.user2_Id,
           lastMessageContent: message,
           lastUpdated: new Date(),
         }),
@@ -208,9 +210,17 @@ const MessagingWindow = (props) => {
   };
 
   return (
-    <Box maxW="100%" height="85vh">
+    <Box
+      maxW="100%"
+      height="100%"
+      minH="100vh"
+      display="flex"
+      flexDirection="column"
+      overflow="hidden"
+      pb={{ base: "7rem", lg: "0" }}
+    >
       {receiver && (
-        <HStack gap="8" bg="gray.800" padding="4">
+        <HStack gap="8" bg="gray.800" padding="4" flexShrink="0">
           <Avatar.Root>
             <Avatar.Fallback name={receiver.name + " " + receiver.lastName} />
             <Avatar.Image src={receiver.profilePictureUrl} />
@@ -221,8 +231,8 @@ const MessagingWindow = (props) => {
         </HStack>
       )}
 
-      <ScrollArea.Root padding="4" ref={scrollAreaRef}>
-        <ScrollArea.Viewport>
+      <ScrollArea.Root padding="4" ref={scrollAreaRef} flex="1" minH="0">
+        <ScrollArea.Viewport style={{ height: "100%" }}>
           <ScrollArea.Content pb={receiver ? "80px" : "2"}>
             {messages.map((msg) => (
               <Box
@@ -274,7 +284,7 @@ const MessagingWindow = (props) => {
       </ScrollArea.Root>
 
       {receiver && (
-        <Box position="absolute" bottom="2" left="25.5%" width="74%">
+        <Box p="4" pt="0" flexShrink="0">
           <Input
             borderRadius="100rem"
             placeholder="Upiši poruku..."

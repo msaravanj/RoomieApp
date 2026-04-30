@@ -45,7 +45,7 @@ public class HousingController {
         return theHousing;
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("#theHousing.userId == authentication.principal.id or hasRole('ADMIN')")
     @PutMapping("/housings")
     public void updateHousing(@RequestBody HousingDto theHousing) {
         housingService.save(theHousing);

@@ -14,8 +14,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class PhotoController {
 
-    private PhotoService photoService;
-    private HousingService housingService;
+    private final PhotoService photoService;
+    private final HousingService housingService;
 
     @Autowired
     public PhotoController(PhotoService thePhotoService, HousingService theHousingService) {
@@ -50,14 +50,14 @@ public class PhotoController {
         return photos;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(#thePhoto.housingId).userId")
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == @housingServiceImpl.findById(#thePhoto.housingId).userId")
     @PutMapping("/photos")
     public void updatePhoto(@RequestBody PhotoDto thePhoto) {
         photoService.save(thePhoto);
 
     }
 
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(#thePhoto.housingId).userId")
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == @housingServiceImpl.findById(#thePhoto.housingId).userId")
     @PostMapping("/photos")
     public void addPhoto(@RequestBody PhotoDto thePhoto) {
 
@@ -65,7 +65,7 @@ public class PhotoController {
         photoService.save(thePhoto);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == housingService.findById(photoService.findById(#photoId).housingId).userId")
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == @housingServiceImpl.findById(@photoServiceImpl.findById(#photoId).housingId).userId")
     @DeleteMapping("/photos/{photoId}")
     public void deletePhoto(@PathVariable int photoId) {
         PhotoDto tempPhoto = photoService.findById(photoId);

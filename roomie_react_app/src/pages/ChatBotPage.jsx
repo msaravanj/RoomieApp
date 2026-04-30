@@ -1,11 +1,6 @@
-import { Box, Input, ScrollArea } from "@chakra-ui/react";
+import { Box, Input, ScrollArea, Spinner } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
-import SplitText from "gsap/SplitText";
 import { useNavigate } from "react-router-dom";
-
-gsap.registerPlugin(SplitText);
 
 // Stranica za chatbot koji ispituje korisnika o njegovom lifestyleu
 
@@ -13,12 +8,13 @@ const ChatBotPage = () => {
   const [message, setMessage] = useState("");
   const [chatBotResponse, setChatBotResponse] = useState([]);
   const [convMessages, setConvMessages] = useState([]);
+  const [animatedMessage, setAnimatedMessage] = useState("");
+  const [isBotLoading, setIsBotLoading] = useState(false);
   const hasStartedRef = useRef(false);
 
   const scrollAreaRef = useRef(null);
-  const lastBotMsgRef = useRef(null);
-  const lastAnimatedIndexRef = useRef(-1);
-  const splitTextRef = useRef(null);
+  const revealIntervalRef = useRef(null);
+  const lastAnimatedBotIndexRef = useRef(-1);
 
   const navigate = useNavigate();
 
@@ -32,51 +28,68 @@ const ChatBotPage = () => {
     return -1;
   };
 
-  useGSAP(() => {
+  useEffect(() => {
     const lastBotIndex = getLastBotMessageIndex();
-    // Animiraj samo ako je ovo nova poruka (index se promijenio)
-    if (
-      lastBotMsgRef.current &&
-      lastBotIndex !== -1 &&
-      lastBotIndex !== lastAnimatedIndexRef.current
-    ) {
-      if (splitTextRef.current) {
-        splitTextRef.current.revert();
+    if (lastBotIndex === -1) {
+      setAnimatedMessage("");
+      return;
+    }
+
+    // Nemoj ponovno animirati zadnje pitanje ako je korisnik samo poslao odgovor.
+    if (lastBotIndex === lastAnimatedBotIndexRef.current) {
+      return;
+    }
+    lastAnimatedBotIndexRef.current = lastBotIndex;
+
+    const lastBotMsg = convMessages[lastBotIndex]?.message || "";
+    const words = lastBotMsg.trim().split(/\s+/).filter(Boolean);
+
+    if (words.length <= 4) {
+      setAnimatedMessage(lastBotMsg);
+      return;
+    }
+
+    if (revealIntervalRef.current) {
+      clearInterval(revealIntervalRef.current);
+      revealIntervalRef.current = null;
+    }
+
+    let currentIndex = 4;
+    setAnimatedMessage(words.slice(0, currentIndex).join(" "));
+
+    revealIntervalRef.current = setInterval(() => {
+      currentIndex += 4;
+
+      if (currentIndex >= words.length) {
+        setAnimatedMessage(words.join(" "));
+        clearInterval(revealIntervalRef.current);
+        revealIntervalRef.current = null;
+        return;
       }
 
-      lastAnimatedIndexRef.current = lastBotIndex;
-      const splitText = new SplitText(lastBotMsgRef.current, {
-        type: "words,chars",
-      });
-      splitTextRef.current = splitText;
+      setAnimatedMessage(words.slice(0, currentIndex).join(" "));
+    }, 200);
 
-      gsap.set(splitText.words, {
-        display: "inline-block",
-        whiteSpace: "nowrap",
-      });
-
-      gsap.fromTo(
-        splitText.chars,
-        { opacity: 0 },
-        {
-          opacity: 1,
-          duration: 0.05,
-          stagger: 0.05,
-        },
-      );
-    }
+    return () => {
+      if (revealIntervalRef.current) {
+        clearInterval(revealIntervalRef.current);
+        revealIntervalRef.current = null;
+      }
+    };
   }, [convMessages]);
 
   useEffect(() => {
     return () => {
-      if (splitTextRef.current) {
-        splitTextRef.current.revert();
+      if (revealIntervalRef.current) {
+        clearInterval(revealIntervalRef.current);
+        revealIntervalRef.current = null;
       }
     };
   }, []);
 
   const handleSendMessage = () => {
     if (message.trim() === "") return;
+    setIsBotLoading(true);
     setConvMessages((prev) => [
       ...prev,
       { message: message, sender: localStorage.getItem("userId") },
@@ -132,6 +145,7 @@ const ChatBotPage = () => {
       });
       if (!response.ok) {
         console.error("Failed to respond to chatbot: ", response.status);
+        setIsBotLoading(false);
         return;
       }
 
@@ -152,10 +166,12 @@ const ChatBotPage = () => {
           navigate("/rooms");
         }, 3000);
       }
+      setIsBotLoading(false);
       return data;
     } catch (error) {
       console.error("Error responding to chatbot: ", error);
       setChatBotResponse([]);
+      setIsBotLoading(false);
       return null;
     }
   };
@@ -196,11 +212,10 @@ const ChatBotPage = () => {
                     whiteSpace="normal"
                     wordBreak="keep-all"
                     overflowWrap="normal"
-                    ref={
-                      index === getLastBotMessageIndex() ? lastBotMsgRef : null
-                    }
                   >
-                    {msg.message}
+                    {index === getLastBotMessageIndex()
+                      ? animatedMessage || msg.message
+                      : msg.message}
                   </Box>
                 ) : (
                   <Box
@@ -217,6 +232,11 @@ const ChatBotPage = () => {
                     {msg.message}
                   </Box>
                 ),
+              )}
+              {isBotLoading && (
+                <Box marginTop="2rem" display="flex" alignItems="center">
+                  <Spinner size="md" />
+                </Box>
               )}
             </ScrollArea.Content>
           </ScrollArea.Viewport>
