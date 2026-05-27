@@ -10,6 +10,7 @@ import {
   Button,
   CloseButton,
   Image,
+  Spinner,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -38,6 +39,8 @@ const OverlayCard = ({
   const [user, setUser] = useState(null);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [comparisonResult, setComparisonResult] = useState(null);
+  const [isComparing, setIsComparing] = useState(false);
 
   const formatMatchingScore = (score) => {
     const numericScore = Number(score);
@@ -48,6 +51,29 @@ const OverlayCard = ({
 
     const percentage = numericScore <= 1 ? numericScore * 100 : numericScore;
     return `${Math.round(percentage)}%`;
+  };
+
+  const compareLifestyleProfiles = async (profile1Id, profile2Id) => {
+    setIsComparing(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/lifestyle-profiles/collate/${profile1Id}/${profile2Id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+      const data = await response.text();
+      setComparisonResult(data);
+    } catch (error) {
+      console.error("Error comparing lifestyle profiles:", error);
+    } finally {
+      setIsComparing(false);
+    }
   };
 
   const findLifestyleProfile = async (userId) => {
@@ -114,6 +140,18 @@ const OverlayCard = ({
       isActive = false;
     };
   }, [open, room?.userId]);
+
+  useEffect(() => {
+    if (!open || matching?.score === undefined || matching?.score === null) {
+      return;
+    }
+
+    setComparisonResult(null);
+
+    if (room?.userId) {
+      compareLifestyleProfiles(localStorage.getItem("userId"), room.userId);
+    }
+  }, [open, room?.userId, matching?.score]);
 
   return (
     <Dialog.Root
@@ -251,14 +289,26 @@ const OverlayCard = ({
                       </HStack>
                       {matching?.score !== undefined &&
                         matching?.score !== null && (
-                          <HStack gap="2" align="center">
-                            <Text fontWeight="medium" color="green.500">
-                              Roomie podudaranje:
+                          <Box>
+                            <HStack gap="2" align="center">
+                              <Text fontWeight="medium" color="green.500">
+                                Roomie podudaranje:
+                              </Text>
+                              <Text fontWeight="bold" color="green.500">
+                                {formatMatchingScore(matching.score)}
+                              </Text>
+                            </HStack>
+                            <Text fontSize="sm" color="fg.muted">
+                              {isComparing ? (
+                                <HStack gap="2" mt="1">
+                                  <Spinner size="sm" />
+                                  <Text>Učitavanje obrazloženja ...</Text>
+                                </HStack>
+                              ) : (
+                                comparisonResult
+                              )}
                             </Text>
-                            <Text fontWeight="bold" color="green.500">
-                              {formatMatchingScore(matching.score)}
-                            </Text>
-                          </HStack>
+                          </Box>
                         )}
                       {lifestyleProfile && (
                         <Flex

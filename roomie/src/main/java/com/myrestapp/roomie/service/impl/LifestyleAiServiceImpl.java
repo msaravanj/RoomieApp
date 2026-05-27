@@ -1,6 +1,7 @@
 package com.myrestapp.roomie.service.impl;
 
 import com.myrestapp.roomie.dto.LifestyleGenerateRequestDto;
+import com.myrestapp.roomie.dto.LifestyleProfileDto;
 import com.myrestapp.roomie.service.LifestyleAiService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,32 @@ public class LifestyleAiServiceImpl implements LifestyleAiService {
                 request.getAnswers().get(7),
                 request.getAnswers().get(8)
         );
+
+        return chatClient.prompt(prompt).call().content();
+
+    }
+
+    @Override
+    public String collateLifestyleProfiles(LifestyleProfileDto profile1, LifestyleProfileDto profile2) {
+
+        String prompt = """
+                Na temelju sljedeća dva lifestyle profila generiraj ISKLJUČIVO kratak tekst od točno 2 do 3 rečenice koji opisuje zajedničke lifestyle karakteristike između %s i %s.
+
+STROGA PRAVILA:
+- Fokusiraj se ISKLJUČIVO na sličnosti između profila.
+- NE spominji razlike, nedostatke ili pretpostavke.
+- Koristi samo informacije koje su eksplicitno navedene i podudaraju se u oba profila.
+- NE izmišljaj interese, navike ili osobine.
+- Tekst mora zvučati prirodno, pozitivno i sažeto.
+- NE koristi popise, bullet pointe, naslove ni emoji-je.
+- Odgovor mora sadržavati samo finalni tekst bez dodatnih objašnjenja ili uvoda.
+
+Profil 1:
+%s
+
+Profil 2:
+%s
+""".formatted(profile1, profile2);
 
         return chatClient.prompt(prompt).call().content();
 

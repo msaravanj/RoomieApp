@@ -73,4 +73,12 @@ public class LifestyleProfileController {
     public String generate(@RequestBody LifestyleGenerateRequestDto request) {
         return lifestyleAiService.generateLifestyleProfile(request);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/lifestyle-profiles/collate/{lifestyleProfile1Id}/{lifestyleProfile2Id}")
+    public String collateProfiles(@PathVariable int lifestyleProfile1Id, @PathVariable int lifestyleProfile2Id) {
+        LifestyleProfileDto profile1 = lifestyleProfileService.findById(lifestyleProfile1Id);
+        LifestyleProfileDto profile2 = lifestyleProfileService.findById(lifestyleProfile2Id);
+        return lifestyleAiService.collateLifestyleProfiles(profile1, profile2);
+    }
 }
